@@ -7,6 +7,7 @@ import {
   projectId,
   publicAnonKey,
 } from "./utils/supabase/info";
+import { API_BASE_URL } from "./utils/api";
 
 export interface Message {
   id: string;
@@ -33,7 +34,6 @@ export interface Bookmark {
 }
 
 function App() {
-  const API_BASE_URL = "http://localhost:8000";
   const [threads, setThreads] = useState<Thread[]>([]);
   const [currentThread, setCurrentThread] =
     useState<Thread | null>(null);

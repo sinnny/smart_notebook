@@ -1,3 +1,6 @@
+# common
+.vscode
+
 # be
 .venv
 
@@ -10,10 +13,11 @@
 __pycache__/
 *.pyc
 *.pyo
+*.pydw
 *.pyd
-
 
 # fe
 **/.npmrc
 **/node_modules/
+
 **/build/**

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Loader2, BookmarkPlus, BookmarkCheck } from 'lucide-react';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
+import { API_BASE_URL } from '../utils/api';
 
 interface WordPopoverProps {
   text: string;
@@ -23,7 +24,7 @@ export function WordPopover({ text, position, onClose, onAddBookmark, placement 
     setIsLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:8000/translate-text`,
+        `${API_BASE_URL}/translate-text`,
         {
           method: 'POST',
           headers: {
