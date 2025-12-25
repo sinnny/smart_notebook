@@ -10,11 +10,12 @@
 **/.DS_Store
 **/.env
 
-__pycache__/
-*.pyc
+**/pycache/
+**/*.pyc
 *.pyo
 *.pydw
 *.pyd
+**/__pycache__/
 
 # fe
 **/.npmrc
