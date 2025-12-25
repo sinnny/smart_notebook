@@ -3,11 +3,7 @@ import { Sidebar } from "./components/Sidebar";
 import { ChatArea } from "./components/ChatArea";
 import { TranslationPanel } from "./components/TranslationPanel";
 import { Menu } from "lucide-react";
-import {
-  projectId,
-  publicAnonKey,
-} from "./utils/supabase/info";
-import { API_BASE_URL } from "./utils/api";
+import { API_BASE_URL } from "./api";
 
 export interface Message {
   id: string;
@@ -35,22 +31,18 @@ export interface Bookmark {
 
 function App() {
   const [threads, setThreads] = useState<Thread[]>([]);
-  const [currentThread, setCurrentThread] =
-    useState<Thread | null>(null);
+  const [currentThread, setCurrentThread] = useState<Thread | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [showTranslationPanel, setShowTranslationPanel] =
-    useState(false);
+  const [showTranslationPanel, setShowTranslationPanel] = useState(false);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [autoTranslateResponses, setAutoTranslateResponses] =
-    useState(true);
-  const [bookmarkedThreads, setBookmarkedThreads] = useState<
-    Thread[]
-  >([]);
-  const [translationPanelWidth, setTranslationPanelWidth] =
-    useState(450);
-  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
+  const [autoTranslateResponses, setAutoTranslateResponses] = useState(true);
+  const [bookmarkedThreads, setBookmarkedThreads] = useState<Thread[]>([]);
+  const [translationPanelWidth, setTranslationPanelWidth] = useState(450);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<
+    string | null
+  >(null);
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -67,18 +59,11 @@ function App() {
 
   const loadThreads = async () => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/threads`,
-        {
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-          },
-        },
-      );
+      const response = await fetch(`${API_BASE_URL}/threads`, {});
       if (response.ok) {
         const data = await response.json();
         const validThreads = (data.threads || []).filter(
-          (t: Thread | null) => t != null,
+          (t: Thread | null) => t != null
         );
         setThreads(validThreads);
       }
@@ -89,18 +74,11 @@ function App() {
 
   const loadBookmarkedThreads = async () => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/bookmarked-threads`,
-        {
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-          },
-        },
-      );
+      const response = await fetch(`${API_BASE_URL}/bookmarked-threads`, {});
       if (response.ok) {
         const data = await response.json();
         const validThreads = (data.threads || []).filter(
-          (t: Thread | null) => t != null,
+          (t: Thread | null) => t != null
         );
         setBookmarkedThreads(validThreads);
       }
@@ -113,11 +91,7 @@ function App() {
     try {
       const response = await fetch(
         `${API_BASE_URL}/threads/${threadId}/messages`,
-        {
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-          },
-        },
+        {}
       );
       if (response.ok) {
         const data = await response.json();
@@ -130,14 +104,7 @@ function App() {
 
   const loadBookmarks = async (threadId: string) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/bookmarks/${threadId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-          },
-        },
-      );
+      const response = await fetch(`${API_BASE_URL}/bookmarks/${threadId}`, {});
       if (response.ok) {
         const data = await response.json();
         setBookmarks(data.bookmarks || []);
@@ -158,24 +125,18 @@ function App() {
   const createThread = async () => {
     stopMessageGeneration();
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/threads`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: "새로운 대화 / New conversation",
-          }),
+      const response = await fetch(`${API_BASE_URL}/threads`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          title: "새로운 대화 / New conversation",
+        }),
+      });
       if (response.ok) {
         const data = await response.json();
-        const newThreads = [data.thread, ...threads].filter(
-          (t) => t != null,
-        );
+        const newThreads = [data.thread, ...threads].filter((t) => t != null);
         setThreads(newThreads);
         setCurrentThread(data.thread);
         setMessages([]);
@@ -188,28 +149,22 @@ function App() {
   const sendMessage = async (
     content: string,
     translateToEnglish: boolean,
-    model: string,
+    model: string
   ) => {
     let threadToUse = currentThread;
 
     // Create thread if none exists
     if (!threadToUse) {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/threads`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${publicAnonKey}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              title:
-                content.slice(0, 50) +
-                (content.length > 50 ? "..." : ""),
-            }),
+        const response = await fetch(`${API_BASE_URL}/threads`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+          body: JSON.stringify({
+            title: content.slice(0, 50) + (content.length > 50 ? "..." : ""),
+          }),
+        });
         if (response.ok) {
           const data = await response.json();
           threadToUse = data.thread;
@@ -231,31 +186,25 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/chat`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-            "Content-Type": "application/json",
-          },
-          signal: controller.signal,
-          body: JSON.stringify({
-            threadId: threadToUse.id,
-            message: content,
-            translateToEnglish,
-            autoTranslateResponses,
-            model,
-          }),
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        signal: controller.signal,
+        body: JSON.stringify({
+          threadId: threadToUse?.id || "-99",
+          message: content,
+          translateToEnglish,
+          autoTranslateResponses,
+          model,
+        }),
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error sending message:", errorText);
-        alert(
-          "Failed to send message. Check console for details.",
-        );
+        alert("Failed to send message. Check console for details.");
         return;
       }
 
@@ -290,9 +239,7 @@ function App() {
             }
 
             if (data.startsWith("[USER_MESSAGE:")) {
-              const messageData = JSON.parse(
-                data.slice(14, -1),
-              );
+              const messageData = JSON.parse(data.slice(14, -1));
               userMessageId = messageData.id;
               // Add user message with all data
               setMessages((prev) => {
@@ -306,10 +253,8 @@ function App() {
                     id: messageData.id,
                     role: "user" as const,
                     content: messageData.content,
-                    originalLanguage:
-                      messageData.originalLanguage,
-                    translatedContent:
-                      messageData.translatedContent,
+                    originalLanguage: messageData.originalLanguage,
+                    translatedContent: messageData.translatedContent,
                   },
                 ];
               });
@@ -324,10 +269,7 @@ function App() {
             if (data.startsWith("[ASSISTANT_MESSAGE_ID:")) {
               const messageId = data.slice(22, -1);
               assistantMessageId = messageId;
-              console.log(
-                "Received assistant message ID:",
-                messageId,
-              );
+              console.log("Received assistant message ID:", messageId);
               continue;
             }
 
@@ -345,42 +287,36 @@ function App() {
               const parsed = JSON.parse(data);
 
               if (phase === "translating") {
-                accumulatedUserTranslation +=
-                  parsed.content || "";
+                accumulatedUserTranslation += parsed.content || "";
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === userMessageId
                       ? {
-                        ...m,
-                        translatedContent:
-                          accumulatedUserTranslation,
-                      }
-                      : m,
-                  ),
+                          ...m,
+                          translatedContent: accumulatedUserTranslation,
+                        }
+                      : m
+                  )
                 );
               } else if (phase === "responding") {
-                accumulatedAssistantContent +=
-                  parsed.content || "";
+                accumulatedAssistantContent += parsed.content || "";
                 setMessages((prev) => {
                   const existing = prev.find(
-                    (m) => m.id === assistantMessageId,
+                    (m) => m.id === assistantMessageId
                   );
                   if (existing) {
                     return prev.map((m) =>
                       m.id === assistantMessageId
                         ? {
-                          ...m,
-                          content:
-                            accumulatedAssistantContent,
-                        }
-                        : m,
+                            ...m,
+                            content: accumulatedAssistantContent,
+                          }
+                        : m
                     );
                   } else {
                     // Only create if we have an assistantMessageId
                     if (!assistantMessageId) {
-                      console.error(
-                        "No assistant message ID available",
-                      );
+                      console.error("No assistant message ID available");
                       return prev;
                     }
                     return [
@@ -394,18 +330,16 @@ function App() {
                   }
                 });
               } else if (phase === "translating-response") {
-                accumulatedAssistantTranslation +=
-                  parsed.content || "";
+                accumulatedAssistantTranslation += parsed.content || "";
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === assistantMessageId
                       ? {
-                        ...m,
-                        translatedContent:
-                          accumulatedAssistantTranslation,
-                      }
-                      : m,
-                  ),
+                          ...m,
+                          translatedContent: accumulatedAssistantTranslation,
+                        }
+                      : m
+                  )
                 );
               }
             } catch (e) {
@@ -418,9 +352,7 @@ function App() {
       loadThreads(); // Refresh thread list to update titles
     } catch (error) {
       console.error("Error sending message:", error);
-      alert(
-        "Failed to send message. Check console for details.",
-      );
+      alert("Failed to send message. Check console for details.");
     } finally {
       setIsLoading(false);
       abortControllerRef.current = null;
@@ -430,47 +362,35 @@ function App() {
   const requestTranslation = async (messageId: string) => {
     if (!currentThread) return;
 
-    console.log(
-      "Requesting translation for message:",
-      messageId,
-    );
+    console.log("Requesting translation for message:", messageId);
     console.log("Current thread:", currentThread.id);
     console.log(
       "Current messages:",
-      messages.map((m) => ({ id: m.id, role: m.role })),
+      messages.map((m) => ({ id: m.id, role: m.role }))
     );
 
     setIsLoading(true);
     setShowTranslationPanel(true);
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/translate`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            threadId: currentThread.id,
-            messageId,
-          }),
+      const response = await fetch(`${API_BASE_URL}/translate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          threadId: currentThread.id,
+          messageId,
+        }),
+      });
 
       if (response.ok) {
         const data = await response.json();
         setMessages(data.messages);
       } else {
         const errorText = await response.text();
-        console.error(
-          "Error requesting translation:",
-          errorText,
-        );
-        alert(
-          "Failed to request translation. Check console for details.",
-        );
+        console.error("Error requesting translation:", errorText);
+        alert("Failed to request translation. Check console for details.");
       }
     } catch (error) {
       console.error("Error requesting translation:", error);
@@ -487,27 +407,23 @@ function App() {
   const addBookmark = async (
     text: string,
     translation: string,
-    type: "word" | "sentence",
+    type: "word" | "sentence"
   ) => {
     if (!currentThread) return;
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/bookmarks`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            threadId: currentThread.id,
-            text,
-            translation,
-            type,
-          }),
+      const response = await fetch(`${API_BASE_URL}/bookmarks`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          threadId: currentThread.id,
+          text,
+          translation,
+          type,
+        }),
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -520,15 +436,9 @@ function App() {
 
   const deleteThread = async (threadId: string) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/threads/${threadId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-          },
-        },
-      );
+      const response = await fetch(`${API_BASE_URL}/threads/${threadId}`, {
+        method: "DELETE",
+      });
 
       if (response.ok) {
         setThreads(threads.filter((t) => t.id !== threadId));
@@ -544,9 +454,7 @@ function App() {
 
   const toggleBookmarkThread = async (threadId: string) => {
     const thread = threads.find((t) => t.id === threadId);
-    const isBookmarked = bookmarkedThreads.some(
-      (t) => t.id === threadId,
-    );
+    const isBookmarked = bookmarkedThreads.some((t) => t.id === threadId);
 
     try {
       const response = await fetch(
@@ -554,24 +462,20 @@ function App() {
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ threadId }),
-        },
+        }
       );
 
       if (response.ok) {
         if (isBookmarked) {
           setBookmarkedThreads(
-            bookmarkedThreads.filter((t) => t.id !== threadId),
+            bookmarkedThreads.filter((t) => t.id !== threadId)
           );
         } else {
           if (thread) {
-            setBookmarkedThreads([
-              ...bookmarkedThreads,
-              thread,
-            ]);
+            setBookmarkedThreads([...bookmarkedThreads, thread]);
           }
         }
       } else {
