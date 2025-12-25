@@ -15,6 +15,7 @@ interface ChatAreaProps {
   onToggleTranslationPanel: () => void;
   autoTranslateResponses: boolean;
   onToggleAutoTranslate: () => void;
+  onJumpToTranslation: (messageId: string) => void;
 }
 
 export function ChatArea({
@@ -29,6 +30,7 @@ export function ChatArea({
   onToggleTranslationPanel,
   autoTranslateResponses,
   onToggleAutoTranslate,
+  onJumpToTranslation,
 }: ChatAreaProps) {
   const [input, setInput] = useState('');
   const [autoTranslateToEnglish, setAutoTranslateToEnglish] = useState(true);
@@ -131,6 +133,7 @@ export function ChatArea({
                 message={message}
                 onAddBookmark={onAddBookmark}
                 onRequestTranslation={onRequestTranslation}
+                onJumpToTranslation={onJumpToTranslation}
               />
             ))}
             <div ref={messagesEndRef} />
@@ -156,8 +159,8 @@ export function ChatArea({
               onClick={isLoading ? (e) => { e.preventDefault(); onStop(); } : undefined}
               disabled={!isLoading && !input.trim()}
               className={`absolute right-3 bottom-3 w-9 h-9 text-white rounded-xl flex items-center justify-center transition-all shadow-sm hover:shadow-md ${isLoading
-                  ? 'bg-red-500 hover:bg-red-600'
-                  : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 disabled:opacity-40 disabled:cursor-not-allowed'
+                ? 'bg-red-500 hover:bg-red-600'
+                : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 disabled:opacity-40 disabled:cursor-not-allowed'
                 }`}
             >
               {isLoading ? (

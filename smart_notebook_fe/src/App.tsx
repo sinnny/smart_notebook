@@ -50,6 +50,7 @@ function App() {
   >([]);
   const [translationPanelWidth, setTranslationPanelWidth] =
     useState(450);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -478,6 +479,11 @@ function App() {
     }
   };
 
+  const handleJumpToTranslation = (messageId: string) => {
+    setHighlightedMessageId(messageId);
+    setShowTranslationPanel(true);
+  };
+
   const addBookmark = async (
     text: string,
     translation: string,
@@ -630,6 +636,7 @@ function App() {
             onToggleAutoTranslate={() =>
               setAutoTranslateResponses(!autoTranslateResponses)
             }
+            onJumpToTranslation={handleJumpToTranslation}
           />
         </div>
 
@@ -643,6 +650,7 @@ function App() {
               onClose={() => setShowTranslationPanel(false)}
               onResize={setTranslationPanelWidth}
               width={translationPanelWidth}
+              highlightedMessageId={highlightedMessageId}
             />
           </div>
         )}
