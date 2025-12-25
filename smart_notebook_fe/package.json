@@ -7,7 +7,6 @@
     "npm": ">=10 <11"
   },
   "dependencies": {
-    "@jsr/supabase__supabase-js": "^2.49.8",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-aspect-ratio": "^1.1.2",
@@ -57,7 +56,7 @@
   "devDependencies": {
     "@types/node": "^20.10.0",
     "@vitejs/plugin-react-swc": "^3.10.2",
-     "@types/react-syntax-highlighter": "^15.5.13",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "concurrently": "^9.2.1",
     "vite": "6.3.5"
   },
