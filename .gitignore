@@ -1,0 +1,13 @@
+# be
+.venv
+
+
+**/venv/**
+
+**/.DS_Store
+**/.env
+
+
+# fe
+**/.npmrc
+**/node_modules/
