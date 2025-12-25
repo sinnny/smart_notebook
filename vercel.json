@@ -18,10 +18,6 @@
   ],
   "routes": [
     {
-      "src": "/api",
-      "dest": "smart_notebook_be/main.py"
-    },
-    {
       "src": "/api/(.*)",
       "dest": "smart_notebook_be/main.py"
     },
@@ -30,7 +26,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "index.html"
+      "dest": "/smart_notebook_fe/index.html"
     }
   ]
 }
