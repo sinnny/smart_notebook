@@ -21,6 +21,7 @@
       "src": "/api/(.*)",
       "dest": "smart_notebook_be/main.py"
     },
+    { "src": "/assets/(.*)", "dest": "/smart_notebook_fe/assets/$1" },
     {
       "handle": "filesystem"
     },
