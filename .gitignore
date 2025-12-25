@@ -11,3 +11,4 @@
 # fe
 **/.npmrc
 **/node_modules/
+**/build/**
