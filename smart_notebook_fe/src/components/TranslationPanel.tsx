@@ -10,9 +10,10 @@ interface TranslationPanelProps {
   onClose: () => void;
   onResize?: (width: number) => void;
   width?: number;
+  highlightedMessageId?: string | null;
 }
 
-export function TranslationPanel({ messages, onClose, onResize, width = 400 }: TranslationPanelProps) {
+export function TranslationPanel({ messages, onClose, onResize, width = 400, highlightedMessageId }: TranslationPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -22,12 +23,27 @@ export function TranslationPanel({ messages, onClose, onResize, width = 400 }: T
     (m) => m.role === 'assistant' && m.translatedContent
   );
 
+  // Scroll to bottom on initial mount to show latest messages
   useEffect(() => {
-    if (scrollRef.current && assistantMessages.length > 0) {
-      // Scroll to top when panel opens or new message arrives
-      scrollRef.current.scrollTop = 0;
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [assistantMessages.length]);
+  }, []);
+
+  // Handle jump to specific message
+  useEffect(() => {
+    if (highlightedMessageId && scrollRef.current) {
+      const element = document.getElementById(`translation-${highlightedMessageId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Optional: Add a temporary highlight effect
+        element.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+        setTimeout(() => {
+          element.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
+        }, 2000);
+      }
+    }
+  }, [highlightedMessageId]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsResizing(true);
@@ -39,7 +55,7 @@ export function TranslationPanel({ messages, onClose, onResize, width = 400 }: T
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
-      
+
       const diff = startX - e.clientX;
       const newWidth = Math.min(Math.max(350, startWidth + diff), 800);
       onResize?.(newWidth);
@@ -61,14 +77,16 @@ export function TranslationPanel({ messages, onClose, onResize, width = 400 }: T
   }, [isResizing, startX, startWidth, onResize]);
 
   return (
-    <div className="h-full flex flex-col bg-white relative">
+    <div
+      className="h-full flex flex-col bg-white relative"
+    >
       {/* Resize handle */}
       <div
         onMouseDown={handleMouseDown}
         className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-blue-500 transition-colors z-10"
         style={{ marginLeft: '-2px' }}
       />
-      
+
       <div className="p-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
         <h2 className="text-sm font-semibold text-gray-900">한국어 번역</h2>
         <button
@@ -90,7 +108,8 @@ export function TranslationPanel({ messages, onClose, onResize, width = 400 }: T
           assistantMessages.map((message, index) => (
             <div
               key={message.id}
-              className="bg-gradient-to-br from-gray-50 to-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm"
+              id={`translation-${message.id}`}
+              className="bg-gradient-to-br from-gray-50 to-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm transition-all duration-300"
             >
               <div className="px-5 py-4 prose prose-sm max-w-none
                 [&>*]:text-[14px] [&>*]:text-gray-800 [&>*]:leading-[1.85] [&>*]:tracking-[0.02em]
