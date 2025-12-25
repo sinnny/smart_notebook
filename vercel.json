@@ -26,7 +26,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "./smart_notebook_fe/index.html"
+      "dest": "./index.html"
     }
   ]
 }
