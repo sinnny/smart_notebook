@@ -10,11 +10,12 @@ from routers import chat, threads, bookmarks
 app = FastAPI()
 
 # CORS configuration
-origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "*"  # Verify if this is safe for production, usually specific origins are better
-]
+cors_origins_env = os.getenv("CORS_ORIGINS", "")
+origins = (
+    [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+    if cors_origins_env
+    else ["http://localhost:5173", "http://localhost:3000"]
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,10 +25,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(chat.router)
-app.include_router(threads.router)
-app.include_router(bookmarks.router)
+API_PREFIX = os.getenv("API_PREFIX", "/api")
+app.include_router(chat.router, prefix=API_PREFIX)
+app.include_router(threads.router, prefix=API_PREFIX)
+app.include_router(bookmarks.router, prefix=API_PREFIX)
 
 @app.get("/")
 def read_root():
     return {"status": "ok", "message": "Smart Notebook Backend is running"}
+
+@app.get(f"{API_PREFIX}")
+def api_root():
+    return {"status": "ok", "message": "Smart Notebook Backend API is running"}

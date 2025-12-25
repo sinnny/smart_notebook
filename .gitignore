@@ -12,8 +12,10 @@ __pycache__/
 *.pyo
 *.pydw
 
+*.pyd
 
 # fe
 **/.npmrc
 **/node_modules/
+
 **/build/**
