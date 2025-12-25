@@ -2,7 +2,6 @@ import os
 import re
 import uuid
 from typing import List, Dict, Any
-
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
@@ -21,6 +20,13 @@ def _get_postgres_connect_kwargs() -> Dict[str, Any]:
         return {"dsn": dsn}
 
     host = os.getenv("POSTGRES_HOST") or os.getenv("PGHOST")
+    if host and (host.startswith("postgresql://") or host.startswith("postgres://")):
+        raise RuntimeError(
+            "POSTGRES_HOST에는 호스트명만 넣어야 합니다. "
+            "현재 postgresql://... 형태의 전체 connection URI가 들어있습니다. "
+            "DATABASE_URL(권장) 또는 POSTGRES_URL로 옮기거나, "
+            "POSTGRES_HOST=db.<project-ref>.supabase.co 처럼 호스트만 설정해 주세요."
+        )
     port = os.getenv("POSTGRES_PORT") or os.getenv("PGPORT") or "5432"
     dbname = os.getenv("POSTGRES_DB") or os.getenv("PGDATABASE")
     user = os.getenv("POSTGRES_USER") or os.getenv("PGUSER")
@@ -59,12 +65,21 @@ def _get_postgres_connect_kwargs() -> Dict[str, Any]:
 
 
 def get_db_connection():
+    """DB 연결 생성"""
     kwargs = _get_postgres_connect_kwargs()
-    return psycopg2.connect(**kwargs, cursor_factory=RealDictCursor)
+    try:
+        return psycopg2.connect(**kwargs, cursor_factory=RealDictCursor)
+    except psycopg2.OperationalError as e:
+        print(f"❌ DB 연결 실패: {e}")
+        raise
+
 
 def init_db():
-    conn = get_db_connection()
+    """데이터베이스 초기화 (테이블 생성)"""
+    print("🔄 데이터베이스 초기화 중...")
+    conn = None
     try:
+        conn = get_db_connection()
         cursor = conn.cursor()
 
         cursor.execute(
@@ -122,11 +137,18 @@ def init_db():
         )
 
         conn.commit()
+        print("✅ 데이터베이스 초기화 완료!")
+    except Exception as e:
+        print(f"❌ 데이터베이스 초기화 실패: {e}")
+        raise
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
-# Initialize on import
-init_db()
+
+# ⚠️ 중요: 모듈 로딩 시점에는 init_db()를 호출하지 않음
+# 대신 main.py의 startup 이벤트에서 호출하도록 변경
+
 
 class DBWrapper:
     class Table:
@@ -173,14 +195,14 @@ class DBWrapper:
                 # Handle INSERT
                 if hasattr(self, "_insert_data"):
                     data = self._insert_data
-                    
+
                     if "id" not in data and self.table_name != "bookmarked_threads":
                         data["id"] = str(uuid.uuid4())
 
                     for col in data.keys():
                         if not _IDENTIFIER_RE.match(col):
                             raise ValueError(f"Invalid column name: {col}")
-                    
+
                     columns = ", ".join(data.keys())
                     placeholders = ", ".join(["%s" for _ in data])
                     query = (
@@ -192,29 +214,32 @@ class DBWrapper:
                     conn.commit()
                     return type("Response", (), {"data": [row] if row else []})
 
-
                 # Handle UPDATE
                 if hasattr(self, "_update_data"):
                     for col in self._update_data.keys():
                         if not _IDENTIFIER_RE.match(col):
                             raise ValueError(f"Invalid column name: {col}")
                     sets = ", ".join([f"{k} = %s" for k in self._update_data.keys()])
-                    query = f"UPDATE {self.table_name} SET {sets} WHERE {self._eq_col} = %s"
-                    cursor.execute(query, list(self._update_data.values()) + [self._eq_val])
+                    query = (
+                        f"UPDATE {self.table_name} SET {sets} WHERE {self._eq_col} = %s"
+                    )
+                    cursor.execute(
+                        query, list(self._update_data.values()) + [self._eq_val]
+                    )
                     conn.commit()
                     return type("Response", (), {"data": []})
-                
+
                 # Handle DELETE
                 if hasattr(self, "_delete"):
                     query = f"DELETE FROM {self.table_name} WHERE {self._eq_col} = %s"
                     cursor.execute(query, [self._eq_val])
                     conn.commit()
                     return type("Response", (), {"data": []})
-                
+
                 # Default: SELECT
                 query = f"SELECT {getattr(self, '_select', '*')} FROM {self.table_name}"
                 params = []
-                
+
                 if hasattr(self, "_eq_col"):
                     query += f" WHERE {self._eq_col} = %s"
                     params.append(self._eq_val)
@@ -222,13 +247,13 @@ class DBWrapper:
                     placeholders = ", ".join(["%s" for _ in self._in_vals])
                     query += f" WHERE {self._in_col} IN ({placeholders})"
                     params.extend(self._in_vals)
-                    
+
                 if hasattr(self, "_order_col"):
                     query += f" ORDER BY {self._order_col} {'DESC' if self._order_desc else 'ASC'}"
-                    
+
                 if hasattr(self, "_limit"):
                     query += f" LIMIT {self._limit}"
-                    
+
                 cursor.execute(query, params)
                 rows = cursor.fetchall()
                 data = list(rows or [])
@@ -236,6 +261,7 @@ class DBWrapper:
             except Exception as e:
                 print(f"DB EXECUTE ERROR: {e}")
                 import traceback
+
                 traceback.print_exc()
                 raise e
             finally:
@@ -256,6 +282,7 @@ class DBWrapper:
 
     def table(self, name: str):
         return self.Table(name)
+
 
 # Postgres-backed supabase-like client
 supabase = DBWrapper()
