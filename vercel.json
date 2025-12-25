@@ -12,7 +12,7 @@
       "src": "smart_notebook_fe/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build"
+        "distDir": "dist"
       }
     }
   ],
@@ -21,7 +21,6 @@
       "src": "/api/(.*)",
       "dest": "smart_notebook_be/main.py"
     },
-    { "src": "/assets/(.*)", "dest": "/smart_notebook_fe/assets/$1" },
     {
       "handle": "filesystem"
     },
