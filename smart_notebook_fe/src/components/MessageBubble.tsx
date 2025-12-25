@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
-import { User, Bot } from 'lucide-react';
 import { Message } from '../App';
+import { BookOpen, User, Bot, Sparkles } from 'lucide-react';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { WordPopover } from './WordPopover';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface MessageBubbleProps {
   message: Message;
   onRequestTranslation: (messageId: string) => void;
   onAddBookmark: (text: string, translation: string, type: 'word' | 'sentence') => void;
+  onJumpToTranslation: (messageId: string) => void;
 }
 
 export function MessageBubble({
   message,
   onRequestTranslation,
   onAddBookmark,
+  onJumpToTranslation,
 }: MessageBubbleProps) {
   const [selectedText, setSelectedText] = useState('');
   const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
@@ -52,6 +54,7 @@ export function MessageBubble({
 
   const isUser = message.role === 'user';
   const showTranslateButton = message.role === 'assistant' && !message.translatedContent;
+  const showJumpButton = message.role === 'assistant' && !!message.translatedContent;
 
   // For user messages, always show original
   const displayContent = message.content;
@@ -148,10 +151,18 @@ export function MessageBubble({
             onClick={() => onRequestTranslation(message.id)}
             className="mt-2 px-2.5 py-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center gap-1.5 transition-all"
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-            </svg>
+            <Sparkles className="w-3.5 h-3.5" />
             Translate to Korean
+          </button>
+        )}
+
+        {showJumpButton && (
+          <button
+            onClick={() => onJumpToTranslation(message.id)}
+            className="mt-2 px-2.5 py-1 text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg flex items-center gap-1.5 transition-all font-medium"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            Show Translation
           </button>
         )}
       </div>
