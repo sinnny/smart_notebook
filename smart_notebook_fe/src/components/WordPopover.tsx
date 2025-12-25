@@ -1,18 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { X, Loader2, BookmarkPlus, BookmarkCheck } from 'lucide-react';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
-import { API_BASE_URL } from '../utils/api';
+import React, { useState, useEffect } from "react";
+import { X, Loader2, BookmarkPlus, BookmarkCheck } from "lucide-react";
+import { projectId, publicAnonKey } from "../utils/supabase/info";
+import { API_BASE_URL } from "../api";
 
 interface WordPopoverProps {
   text: string;
   position: { x: number; y: number };
   onClose: () => void;
-  onAddBookmark: (text: string, translation: string, type: 'word' | 'sentence') => void;
-  placement?: 'top' | 'bottom';
+  onAddBookmark: (
+    text: string,
+    translation: string,
+    type: "word" | "sentence"
+  ) => void;
+  placement?: "top" | "bottom";
 }
 
-export function WordPopover({ text, position, onClose, onAddBookmark, placement = 'top' }: WordPopoverProps) {
-  const [translation, setTranslation] = useState('');
+export function WordPopover({
+  text,
+  position,
+  onClose,
+  onAddBookmark,
+  placement = "top",
+}: WordPopoverProps) {
+  const [translation, setTranslation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
@@ -23,57 +33,52 @@ export function WordPopover({ text, position, onClose, onAddBookmark, placement 
   const translateText = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/translate-text`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/translate-text`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      });
 
       if (response.ok) {
         const data = await response.json();
         setTranslation(data.translation);
       }
     } catch (error) {
-      console.error('Error translating text:', error);
-      setTranslation('Translation failed');
+      console.error("Error translating text:", error);
+      setTranslation("Translation failed");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleBookmark = () => {
-    const type = text.split(' ').length === 1 ? 'word' : 'sentence';
+    const type = text.split(" ").length === 1 ? "word" : "sentence";
     onAddBookmark(text, translation, type);
     setIsBookmarked(true);
   };
 
-  const isWord = text.split(' ').length === 1;
+  const isWord = text.split(" ").length === 1;
 
   return (
     <>
-      <div
-        className="fixed inset-0 z-40"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 z-40" onClick={onClose} />
       <div
         className="fixed z-50 bg-white border border-gray-200 rounded-2xl shadow-2xl p-4 w-80"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
-          transform: placement === 'top'
-            ? 'translate(-50%, -100%) translateY(-10px)'
-            : 'translate(-50%, 10px)',
+          transform:
+            placement === "top"
+              ? "translate(-50%, -100%) translateY(-10px)"
+              : "translate(-50%, 10px)",
         }}
       >
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             <div className="text-xs text-gray-500 mb-1.5">
-              {isWord ? 'Word' : 'Sentence'}
+              {isWord ? "Word" : "Sentence"}
             </div>
             <div className="text-blue-600 text-sm">{text}</div>
           </div>
@@ -93,7 +98,9 @@ export function WordPopover({ text, position, onClose, onAddBookmark, placement 
               Translating...
             </div>
           ) : (
-            <div className="text-gray-900 text-sm leading-relaxed">{translation}</div>
+            <div className="text-gray-900 text-sm leading-relaxed">
+              {translation}
+            </div>
           )}
         </div>
 
@@ -101,10 +108,11 @@ export function WordPopover({ text, position, onClose, onAddBookmark, placement 
           <button
             onClick={handleBookmark}
             disabled={isBookmarked}
-            className={`mt-3 w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all ${isBookmarked
-                ? 'bg-green-50 text-green-700 border border-green-200'
-                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'
-              }`}
+            className={`mt-3 w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-sm transition-all ${
+              isBookmarked
+                ? "bg-green-50 text-green-700 border border-green-200"
+                : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+            }`}
           >
             {isBookmarked ? (
               <>
