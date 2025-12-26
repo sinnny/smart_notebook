@@ -33,6 +33,7 @@ async def lifespan(app: FastAPI):
     logger.info("👋 애플리케이션 종료")
 
 
+# Exported ASGI app (imported by smart_notebook_be/api/index.py for deployments)
 app = FastAPI(lifespan=lifespan)
 
 # CORS configuration
