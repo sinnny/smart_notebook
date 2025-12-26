@@ -1,32 +1,14 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "smart_notebook_be/main.py",
-      "use": "@vercel/python",
-      "config": {
-        "runtime": "python3.11"
-      }
-    },
-    {
-      "src": "smart_notebook_fe/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "smart_notebook_be/main.py"
     },
-    {
-      "handle": "filesystem"
-    },
+    { "handle": "filesystem" },
     {
       "src": "/(.*)",
-      "dest": "./index.html"
+      "dest": "/index.html"
     }
   ]
 }
