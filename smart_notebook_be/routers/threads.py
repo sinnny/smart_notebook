@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from typing import List, Optional
 from db import supabase
@@ -9,17 +9,17 @@ class ThreadCreate(BaseModel):
     title: str
 
 @router.get("/threads")
-async def get_threads():
+async def get_threads(x_user_id: Optional[str] = Header(None, alias="x-user-id")):
     try:
-        response = supabase.table("threads").select("*").order("created_at", desc=True).execute()
+        response = supabase.table("threads").select("*").eq("user_id", x_user_id).order("created_at", desc=True).execute()
         return {"threads": response.data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/threads")
-async def create_thread(thread: ThreadCreate):
+async def create_thread(thread: ThreadCreate, x_user_id: Optional[str] = Header(None, alias="x-user-id")):
     try:
-        response = supabase.table("threads").insert({"title": thread.title}).execute()
+        response = supabase.table("threads").insert({"title": thread.title, "user_id": x_user_id}).execute()
         if response.data:
             return {"thread": response.data[0]}
         raise HTTPException(status_code=400, detail="Failed to create thread")
@@ -27,9 +27,10 @@ async def create_thread(thread: ThreadCreate):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/threads/{thread_id}")
-async def delete_thread(thread_id: str):
+async def delete_thread(thread_id: str, x_user_id: Optional[str] = Header(None, alias="x-user-id")):
     try:
-        response = supabase.table("threads").delete().eq("id", thread_id).execute()
+        # Verify ownership or just include in delete
+        response = supabase.table("threads").delete().eq("id", thread_id).eq("user_id", x_user_id).execute()
         return {"message": "Thread deleted"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -57,7 +58,7 @@ async def get_thread_messages(thread_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/bookmarked-threads")
-async def get_bookmarked_threads():
+async def get_bookmarked_threads(x_user_id: Optional[str] = Header(None, alias="x-user-id")):
     try:
         # Assuming table bookmarked_threads(thread_id) with join or similar
         # Or checking existing implementation logic. 
@@ -65,7 +66,7 @@ async def get_bookmarked_threads():
         # But generic supabase join syntax is tricky via client.
         
         # Alternative: query bookmarked_threads then query threads
-        bookmarks = supabase.table("bookmarked_threads").select("thread_id").execute()
+        bookmarks = supabase.table("bookmarked_threads").select("thread_id").eq("user_id", x_user_id).execute()
         if not bookmarks.data:
             return {"threads": []}
         
@@ -78,7 +79,7 @@ async def get_bookmarked_threads():
         return {"threads": []}
 
 @router.post("/bookmarked-threads/{action}")
-async def toggle_bookmark_thread(action: str, payload: dict):
+async def toggle_bookmark_thread(action: str, payload: dict, x_user_id: Optional[str] = Header(None, alias="x-user-id")):
     # payload: { threadId: string }
     thread_id = payload.get("threadId")
     if not thread_id:
@@ -86,9 +87,9 @@ async def toggle_bookmark_thread(action: str, payload: dict):
         
     try:
         if action == "add":
-            supabase.table("bookmarked_threads").insert({"thread_id": thread_id}).execute()
+            supabase.table("bookmarked_threads").insert({"thread_id": thread_id, "user_id": x_user_id}).execute()
         elif action == "remove":
-            supabase.table("bookmarked_threads").delete().eq("thread_id", thread_id).execute()
+            supabase.table("bookmarked_threads").delete().eq("thread_id", thread_id).eq("user_id", x_user_id).execute()
         else:
             raise HTTPException(status_code=400, detail="Invalid action")
         return {"status": "success"}
