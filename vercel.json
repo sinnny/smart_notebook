@@ -1,13 +1,7 @@
 {
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "smart_notebook_be/main.py"
-    },
+    { "src": "/api/(.*)", "dest": "/smart_notebook_be/main.py" },
     { "handle": "filesystem" },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
