@@ -1,6 +1,6 @@
 import json
 import asyncio
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, AsyncGenerator
@@ -25,8 +25,25 @@ async def stream_generator(
     user_content: str, 
     translate_to_english: bool, 
     auto_translate_responses: bool, 
-    model: str
+    model: str,
+    user_id: Optional[str]
 ) -> AsyncGenerator[str, None]:
+    
+    # 0. Verify Thread Ownership (if thread_id exists and is not new/placeholder)
+    # Actually, thread_id is passed. If it's a real thread, we should check.
+    # If thread_id is -99 (or whatever new thread logic), we might skip, but usually a thread is created before chat.
+    # In App.tsx, sendMessage creates thread first if !threadToUse.
+    if thread_id and thread_id != "-99":
+        try:
+            t_res = supabase.table("threads").select("user_id").eq("id", thread_id).execute()
+            if t_res.data:
+                # If thread exists, check user_id
+                t_user_id = t_res.data[0].get("user_id")
+                if t_user_id and t_user_id != user_id:
+                     yield f"data: {json.dumps({'error': 'Unauthorized access to this thread'})}\n\n"
+                     return
+        except Exception as e:
+            print(f"Error checking thread ownership: {e}")
     
     # 1. Create User Message (Original Language)
     # We assume input is Korean if translate_to_english is True, but we store what we got.
@@ -147,14 +164,15 @@ async def stream_generator(
         traceback.print_exc()
 
 @router.post("/chat")
-async def chat_endpoint(request: ChatRequest):
+async def chat_endpoint(request: ChatRequest, x_user_id: Optional[str] = Header(None, alias="x-user-id")):
     return StreamingResponse(
         stream_generator(
             request.threadId, 
             request.message, 
             request.translateToEnglish, 
             request.autoTranslateResponses, 
-            request.model
+            request.model,
+            x_user_id
         ),
         media_type="text/event-stream"
     )

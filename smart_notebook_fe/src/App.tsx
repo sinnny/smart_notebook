@@ -5,6 +5,24 @@ import { TranslationPanel } from "./components/TranslationPanel";
 import { Menu } from "lucide-react";
 import { API_BASE_URL } from "./api";
 
+// Helper to get or create User UUID
+const getUserId = () => {
+  let uuid = localStorage.getItem('smart_notebook_uuid');
+  if (!uuid) {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      uuid = crypto.randomUUID();
+    } else {
+      // Simple fallback for older envs
+      uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+    localStorage.setItem('smart_notebook_uuid', uuid);
+  }
+  return uuid;
+};
+
 export interface Message {
   id: string;
   role: "user" | "assistant";
@@ -59,7 +77,9 @@ function App() {
 
   const loadThreads = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/threads`, {});
+      const response = await fetch(`${API_BASE_URL}/threads`, {
+        headers: { "x-user-id": getUserId() }
+      });
       if (response.ok) {
         const data = await response.json();
         const validThreads = (data.threads || []).filter(
@@ -74,7 +94,9 @@ function App() {
 
   const loadBookmarkedThreads = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/bookmarked-threads`, {});
+      const response = await fetch(`${API_BASE_URL}/bookmarked-threads`, {
+        headers: { "x-user-id": getUserId() }
+      });
       if (response.ok) {
         const data = await response.json();
         const validThreads = (data.threads || []).filter(
@@ -91,7 +113,9 @@ function App() {
     try {
       const response = await fetch(
         `${API_BASE_URL}/threads/${threadId}/messages`,
-        {}
+        {
+          headers: { "x-user-id": getUserId() }
+        }
       );
       if (response.ok) {
         const data = await response.json();
@@ -104,7 +128,9 @@ function App() {
 
   const loadBookmarks = async (threadId: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/bookmarks/${threadId}`, {});
+      const response = await fetch(`${API_BASE_URL}/bookmarks/${threadId}`, {
+        headers: { "x-user-id": getUserId() }
+      });
       if (response.ok) {
         const data = await response.json();
         setBookmarks(data.bookmarks || []);
@@ -129,6 +155,7 @@ function App() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-user-id": getUserId()
         },
         body: JSON.stringify({
           title: "새로운 대화 / New conversation",
@@ -160,6 +187,7 @@ function App() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "x-user-id": getUserId()
           },
           body: JSON.stringify({
             title: content.slice(0, 50) + (content.length > 50 ? "..." : ""),
@@ -190,6 +218,7 @@ function App() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-user-id": getUserId()
         },
         signal: controller.signal,
         body: JSON.stringify({
@@ -292,9 +321,9 @@ function App() {
                   prev.map((m) =>
                     m.id === userMessageId
                       ? {
-                          ...m,
-                          translatedContent: accumulatedUserTranslation,
-                        }
+                        ...m,
+                        translatedContent: accumulatedUserTranslation,
+                      }
                       : m
                   )
                 );
@@ -308,9 +337,9 @@ function App() {
                     return prev.map((m) =>
                       m.id === assistantMessageId
                         ? {
-                            ...m,
-                            content: accumulatedAssistantContent,
-                          }
+                          ...m,
+                          content: accumulatedAssistantContent,
+                        }
                         : m
                     );
                   } else {
@@ -335,9 +364,9 @@ function App() {
                   prev.map((m) =>
                     m.id === assistantMessageId
                       ? {
-                          ...m,
-                          translatedContent: accumulatedAssistantTranslation,
-                        }
+                        ...m,
+                        translatedContent: accumulatedAssistantTranslation,
+                      }
                       : m
                   )
                 );
@@ -377,6 +406,7 @@ function App() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-user-id": getUserId()
         },
         body: JSON.stringify({
           threadId: currentThread.id,
@@ -416,6 +446,7 @@ function App() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-user-id": getUserId()
         },
         body: JSON.stringify({
           threadId: currentThread.id,
@@ -438,6 +469,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/threads/${threadId}`, {
         method: "DELETE",
+        headers: { "x-user-id": getUserId() }
       });
 
       if (response.ok) {
@@ -463,6 +495,7 @@ function App() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "x-user-id": getUserId()
           },
           body: JSON.stringify({ threadId }),
         }
