@@ -1,11 +1,10 @@
 import json
-import asyncio
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import Optional, AsyncGenerator
-from db import supabase
-from services.llm import llm_service
+from typing import AsyncGenerator
+from smart_notebook_be.db import supabase
+from smart_notebook_be.services.llm import llm_service
 
 router = APIRouter()
 

@@ -1,7 +1,6 @@
 import os
 from openai import AsyncOpenAI
-import json
-from typing import List, Dict, AsyncGenerator, Optional
+from typing import List, Dict, AsyncGenerator 
 
 # Load prompts
 def load_prompt(filename: str) -> str:
