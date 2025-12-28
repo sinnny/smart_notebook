@@ -1,13 +1,15 @@
-from contextlib import asynccontextmanager
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+from contextlib import asynccontextmanager
+import logging
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from db import init_db
-import logging
-from routers import chat, threads, bookmarks
+
+from smart_notebook_be.db import init_db
+from smart_notebook_be.routers import chat, threads, bookmarks
 
 
 logging.basicConfig(level=logging.INFO)
@@ -16,12 +18,8 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """앱 시작/종료 시 실행할 작업"""
-    # 시작 시
-    logger.info("🚀 애플리케이션 시작 중...")
     try:
         init_db()  # 여기서 DB 초기화
-        logger.info("✅ 데이터베이스 준비 완료")
     except Exception as e:
         logger.error(f"❌ 데이터베이스 초기화 실패: {e}")
         # 필요시 앱 시작을 중단할 수 있음
@@ -33,6 +31,7 @@ async def lifespan(app: FastAPI):
     logger.info("👋 애플리케이션 종료")
 
 
+# Exported ASGI app (imported by smart_notebook_be/api/index.py for deployments)
 app = FastAPI(lifespan=lifespan)
 
 # CORS configuration

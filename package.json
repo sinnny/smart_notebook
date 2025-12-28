@@ -1,0 +1,17 @@
+{
+  "name": "smart_notebook",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm --prefix smart_notebook_fe ci && npm --prefix smart_notebook_fe run build && rm -rf public && mkdir -p public && cp -R smart_notebook_fe/dist/* public/",
+    "dev": "npm --prefix smart_notebook_fe run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github:sinnny/smart_notebook.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

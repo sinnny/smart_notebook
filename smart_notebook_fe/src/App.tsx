@@ -292,9 +292,9 @@ function App() {
                   prev.map((m) =>
                     m.id === userMessageId
                       ? {
-                        ...m,
-                        translatedContent: accumulatedUserTranslation,
-                      }
+                          ...m,
+                          translatedContent: accumulatedUserTranslation,
+                        }
                       : m
                   )
                 );
@@ -308,9 +308,9 @@ function App() {
                     return prev.map((m) =>
                       m.id === assistantMessageId
                         ? {
-                          ...m,
-                          content: accumulatedAssistantContent,
-                        }
+                            ...m,
+                            content: accumulatedAssistantContent,
+                          }
                         : m
                     );
                   } else {
@@ -335,9 +335,9 @@ function App() {
                   prev.map((m) =>
                     m.id === assistantMessageId
                       ? {
-                        ...m,
-                        translatedContent: accumulatedAssistantTranslation,
-                      }
+                          ...m,
+                          translatedContent: accumulatedAssistantTranslation,
+                        }
                       : m
                   )
                 );
