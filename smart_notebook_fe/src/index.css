@@ -1,7 +1,11 @@
 /*! tailwindcss v4.1.3 | MIT License | https://tailwindcss.com */
 @layer properties {
   @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
-    *, :before, :after, ::backdrop {
+
+    *,
+    :before,
+    :after,
+    ::backdrop {
       --tw-rotate-x: rotateX(0);
       --tw-rotate-y: rotateY(0);
       --tw-rotate-z: rotateZ(0);
@@ -58,7 +62,9 @@
 }
 
 @layer theme {
-  :root, :host {
+
+  :root,
+  :host {
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --color-yellow-400: oklch(.852 .199 91.936);
@@ -113,7 +119,11 @@
 }
 
 @layer base {
-  *, :after, :before, ::backdrop {
+
+  *,
+  :after,
+  :before,
+  ::backdrop {
     box-sizing: border-box;
     border: 0 solid;
     margin: 0;
@@ -127,7 +137,8 @@
     padding: 0;
   }
 
-  html, :host {
+  html,
+  :host {
     -webkit-text-size-adjust: 100%;
     tab-size: 4;
     line-height: 1.5;
@@ -152,7 +163,12 @@
     text-decoration: underline dotted;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-size: inherit;
     font-weight: inherit;
   }
@@ -164,11 +180,15 @@
     text-decoration: inherit;
   }
 
-  b, strong {
+  b,
+  strong {
     font-weight: bolder;
   }
 
-  code, kbd, samp, pre {
+  code,
+  kbd,
+  samp,
+  pre {
     font-family: var(--default-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
     font-feature-settings: var(--default-mono-font-feature-settings, normal);
     font-variation-settings: var(--default-mono-font-variation-settings, normal);
@@ -179,7 +199,8 @@
     font-size: 80%;
   }
 
-  sub, sup {
+  sub,
+  sup {
     vertical-align: baseline;
     font-size: 75%;
     line-height: 0;
@@ -212,21 +233,35 @@
     display: list-item;
   }
 
-  ol, ul, menu {
+  ol,
+  ul,
+  menu {
     list-style: none;
   }
 
-  img, svg, video, canvas, audio, iframe, embed, object {
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
     vertical-align: middle;
     display: block;
   }
 
-  img, video {
+  img,
+  video {
     max-width: 100%;
     height: auto;
   }
 
-  button, input, select, optgroup, textarea {
+  button,
+  input,
+  select,
+  optgroup,
+  textarea {
     font: inherit;
     font-feature-settings: inherit;
     font-variation-settings: inherit;
@@ -332,7 +367,8 @@
     box-shadow: none;
   }
 
-  button, input:where([type="button"], [type="reset"], [type="submit"]) {
+  button,
+  input:where([type="button"], [type="reset"], [type="submit"]) {
     appearance: button;
   }
 
@@ -404,7 +440,9 @@
     line-height: 1.5;
   }
 
-  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h4, :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) label, :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) button {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h4,
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) label,
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) button {
     font-size: var(--text-base);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
@@ -813,7 +851,7 @@
   }
 
   .rounded-xl {
-    border-radius: calc(var(--radius)  + 4px);
+    border-radius: calc(var(--radius) + 4px);
   }
 
   .border {
@@ -1421,261 +1459,261 @@
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
 
-  .\[\&\>\*\]\:text-\[14px\] > * {
+  .\[\&\>\*\]\:text-\[14px\]>* {
     font-size: 14px;
   }
 
-  .\[\&\>\*\]\:text-\[15px\] > * {
+  .\[\&\>\*\]\:text-\[15px\]>* {
     font-size: 15px;
   }
 
-  .\[\&\>\*\]\:leading-\[1\.8\] > * {
+  .\[\&\>\*\]\:leading-\[1\.8\]>* {
     --tw-leading: 1.8;
     line-height: 1.8;
   }
 
-  .\[\&\>\*\]\:leading-\[1\.85\] > * {
+  .\[\&\>\*\]\:leading-\[1\.85\]>* {
     --tw-leading: 1.85;
     line-height: 1.85;
   }
 
-  .\[\&\>\*\]\:tracking-\[0\.01em\] > * {
+  .\[\&\>\*\]\:tracking-\[0\.01em\]>* {
     --tw-tracking: .01em;
     letter-spacing: .01em;
   }
 
-  .\[\&\>\*\]\:tracking-\[0\.02em\] > * {
+  .\[\&\>\*\]\:tracking-\[0\.02em\]>* {
     --tw-tracking: .02em;
     letter-spacing: .02em;
   }
 
-  .\[\&\>\*\]\:text-gray-800 > * {
+  .\[\&\>\*\]\:text-gray-800>* {
     color: var(--color-gray-800);
   }
 
-  .\[\&\>a\]\:font-medium > a {
+  .\[\&\>a\]\:font-medium>a {
     --tw-font-weight: var(--font-weight-medium);
     font-weight: var(--font-weight-medium);
   }
 
-  .\[\&\>a\]\:text-blue-600 > a {
+  .\[\&\>a\]\:text-blue-600>a {
     color: var(--color-blue-600);
   }
 
-  .\[\&\>a\]\:underline > a {
+  .\[\&\>a\]\:underline>a {
     text-decoration-line: underline;
   }
 
   @media (hover: hover) {
-    .hover\:\[\&\>a\]\:text-blue-700:hover > a {
+    .hover\:\[\&\>a\]\:text-blue-700:hover>a {
       color: var(--color-blue-700);
     }
   }
 
-  .\[\&\>blockquote\]\:my-3\.5 > blockquote {
+  .\[\&\>blockquote\]\:my-3\.5>blockquote {
     margin-block: calc(var(--spacing) * 3.5);
   }
 
-  .\[\&\>blockquote\]\:my-4 > blockquote {
+  .\[\&\>blockquote\]\:my-4>blockquote {
     margin-block: calc(var(--spacing) * 4);
   }
 
-  .\[\&\>blockquote\]\:border-l-4 > blockquote {
+  .\[\&\>blockquote\]\:border-l-4>blockquote {
     border-left-style: var(--tw-border-style);
     border-left-width: 4px;
   }
 
-  .\[\&\>blockquote\]\:border-blue-500 > blockquote {
+  .\[\&\>blockquote\]\:border-blue-500>blockquote {
     border-color: var(--color-blue-500);
   }
 
-  .\[\&\>blockquote\]\:pl-3\.5 > blockquote {
+  .\[\&\>blockquote\]\:pl-3\.5>blockquote {
     padding-left: calc(var(--spacing) * 3.5);
   }
 
-  .\[\&\>blockquote\]\:pl-4 > blockquote {
+  .\[\&\>blockquote\]\:pl-4>blockquote {
     padding-left: calc(var(--spacing) * 4);
   }
 
-  .\[\&\>blockquote\]\:text-gray-700 > blockquote {
+  .\[\&\>blockquote\]\:text-gray-700>blockquote {
     color: var(--color-gray-700);
   }
 
-  .\[\&\>blockquote\]\:italic > blockquote {
+  .\[\&\>blockquote\]\:italic>blockquote {
     font-style: italic;
   }
 
-  .\[\&\>blockquote\]\:first\:mt-0 > blockquote:first-child {
+  .\[\&\>blockquote\]\:first\:mt-0>blockquote:first-child {
     margin-top: calc(var(--spacing) * 0);
   }
 
-  .\[\&\>blockquote\]\:last\:mb-0 > blockquote:last-child {
+  .\[\&\>blockquote\]\:last\:mb-0>blockquote:last-child {
     margin-bottom: calc(var(--spacing) * 0);
   }
 
-  .\[\&\>h1\]\:mt-5 > h1 {
+  .\[\&\>h1\]\:mt-5>h1 {
     margin-top: calc(var(--spacing) * 5);
   }
 
-  .\[\&\>h1\]\:mt-6 > h1 {
+  .\[\&\>h1\]\:mt-6>h1 {
     margin-top: calc(var(--spacing) * 6);
   }
 
-  .\[\&\>h1\]\:mb-2\.5 > h1 {
+  .\[\&\>h1\]\:mb-2\.5>h1 {
     margin-bottom: calc(var(--spacing) * 2.5);
   }
 
-  .\[\&\>h1\]\:mb-3 > h1 {
+  .\[\&\>h1\]\:mb-3>h1 {
     margin-bottom: calc(var(--spacing) * 3);
   }
 
-  .\[\&\>h1\]\:text-lg > h1 {
+  .\[\&\>h1\]\:text-lg>h1 {
     font-size: var(--text-lg);
     line-height: var(--tw-leading, var(--text-lg--line-height));
   }
 
-  .\[\&\>h1\]\:text-xl > h1 {
+  .\[\&\>h1\]\:text-xl>h1 {
     font-size: var(--text-xl);
     line-height: var(--tw-leading, var(--text-xl--line-height));
   }
 
-  .\[\&\>h1\]\:leading-\[1\.4\] > h1 {
+  .\[\&\>h1\]\:leading-\[1\.4\]>h1 {
     --tw-leading: 1.4;
     line-height: 1.4;
   }
 
-  .\[\&\>h1\]\:leading-\[1\.45\] > h1 {
+  .\[\&\>h1\]\:leading-\[1\.45\]>h1 {
     --tw-leading: 1.45;
     line-height: 1.45;
   }
 
-  .\[\&\>h1\]\:font-semibold > h1 {
+  .\[\&\>h1\]\:font-semibold>h1 {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
   }
 
-  .\[\&\>h1\]\:text-gray-900 > h1 {
+  .\[\&\>h1\]\:text-gray-900>h1 {
     color: var(--color-gray-900);
   }
 
-  .\[\&\>h1\]\:first\:mt-0 > h1:first-child {
+  .\[\&\>h1\]\:first\:mt-0>h1:first-child {
     margin-top: calc(var(--spacing) * 0);
   }
 
-  .\[\&\>h2\]\:mt-5 > h2 {
+  .\[\&\>h2\]\:mt-5>h2 {
     margin-top: calc(var(--spacing) * 5);
   }
 
-  .\[\&\>h2\]\:mt-6 > h2 {
+  .\[\&\>h2\]\:mt-6>h2 {
     margin-top: calc(var(--spacing) * 6);
   }
 
-  .\[\&\>h2\]\:mb-2\.5 > h2 {
+  .\[\&\>h2\]\:mb-2\.5>h2 {
     margin-bottom: calc(var(--spacing) * 2.5);
   }
 
-  .\[\&\>h2\]\:mb-3 > h2 {
+  .\[\&\>h2\]\:mb-3>h2 {
     margin-bottom: calc(var(--spacing) * 3);
   }
 
-  .\[\&\>h2\]\:text-base > h2 {
+  .\[\&\>h2\]\:text-base>h2 {
     font-size: var(--text-base);
     line-height: var(--tw-leading, var(--text-base--line-height));
   }
 
-  .\[\&\>h2\]\:text-lg > h2 {
+  .\[\&\>h2\]\:text-lg>h2 {
     font-size: var(--text-lg);
     line-height: var(--tw-leading, var(--text-lg--line-height));
   }
 
-  .\[\&\>h2\]\:leading-\[1\.4\] > h2 {
+  .\[\&\>h2\]\:leading-\[1\.4\]>h2 {
     --tw-leading: 1.4;
     line-height: 1.4;
   }
 
-  .\[\&\>h2\]\:leading-\[1\.45\] > h2 {
+  .\[\&\>h2\]\:leading-\[1\.45\]>h2 {
     --tw-leading: 1.45;
     line-height: 1.45;
   }
 
-  .\[\&\>h2\]\:font-semibold > h2 {
+  .\[\&\>h2\]\:font-semibold>h2 {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
   }
 
-  .\[\&\>h2\]\:text-gray-900 > h2 {
+  .\[\&\>h2\]\:text-gray-900>h2 {
     color: var(--color-gray-900);
   }
 
-  .\[\&\>h2\]\:first\:mt-0 > h2:first-child {
+  .\[\&\>h2\]\:first\:mt-0>h2:first-child {
     margin-top: calc(var(--spacing) * 0);
   }
 
-  .\[\&\>h3\]\:mt-4 > h3 {
+  .\[\&\>h3\]\:mt-4>h3 {
     margin-top: calc(var(--spacing) * 4);
   }
 
-  .\[\&\>h3\]\:mt-5 > h3 {
+  .\[\&\>h3\]\:mt-5>h3 {
     margin-top: calc(var(--spacing) * 5);
   }
 
-  .\[\&\>h3\]\:mb-2 > h3 {
+  .\[\&\>h3\]\:mb-2>h3 {
     margin-bottom: calc(var(--spacing) * 2);
   }
 
-  .\[\&\>h3\]\:mb-2\.5 > h3 {
+  .\[\&\>h3\]\:mb-2\.5>h3 {
     margin-bottom: calc(var(--spacing) * 2.5);
   }
 
-  .\[\&\>h3\]\:text-base > h3 {
+  .\[\&\>h3\]\:text-base>h3 {
     font-size: var(--text-base);
     line-height: var(--tw-leading, var(--text-base--line-height));
   }
 
-  .\[\&\>h3\]\:text-\[14px\] > h3 {
+  .\[\&\>h3\]\:text-\[14px\]>h3 {
     font-size: 14px;
   }
 
-  .\[\&\>h3\]\:leading-\[1\.4\] > h3 {
+  .\[\&\>h3\]\:leading-\[1\.4\]>h3 {
     --tw-leading: 1.4;
     line-height: 1.4;
   }
 
-  .\[\&\>h3\]\:leading-\[1\.45\] > h3 {
+  .\[\&\>h3\]\:leading-\[1\.45\]>h3 {
     --tw-leading: 1.45;
     line-height: 1.45;
   }
 
-  .\[\&\>h3\]\:font-semibold > h3 {
+  .\[\&\>h3\]\:font-semibold>h3 {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
   }
 
-  .\[\&\>h3\]\:text-gray-900 > h3 {
+  .\[\&\>h3\]\:text-gray-900>h3 {
     color: var(--color-gray-900);
   }
 
-  .\[\&\>h3\]\:first\:mt-0 > h3:first-child {
+  .\[\&\>h3\]\:first\:mt-0>h3:first-child {
     margin-top: calc(var(--spacing) * 0);
   }
 
-  .\[\&\>hr\]\:my-4 > hr {
+  .\[\&\>hr\]\:my-4>hr {
     margin-block: calc(var(--spacing) * 4);
   }
 
-  .\[\&\>hr\]\:my-5 > hr {
+  .\[\&\>hr\]\:my-5>hr {
     margin-block: calc(var(--spacing) * 5);
   }
 
-  .\[\&\>hr\]\:border-gray-200 > hr {
+  .\[\&\>hr\]\:border-gray-200>hr {
     border-color: var(--color-gray-200);
   }
 
-  .\[\&\>ol\]\:my-3\.5 > ol {
+  .\[\&\>ol\]\:my-3\.5>ol {
     margin-block: calc(var(--spacing) * 3.5);
   }
 
-  .\[\&\>ol\]\:my-4 > ol {
+  .\[\&\>ol\]\:my-4>ol {
     margin-block: calc(var(--spacing) * 4);
   }
 
@@ -1691,70 +1729,70 @@
     margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
   }
 
-  .\[\&\>ol\]\:pl-5 > ol {
+  .\[\&\>ol\]\:pl-5>ol {
     padding-left: calc(var(--spacing) * 5);
   }
 
-  .\[\&\>ol\]\:first\:mt-0 > ol:first-child {
+  .\[\&\>ol\]\:first\:mt-0>ol:first-child {
     margin-top: calc(var(--spacing) * 0);
   }
 
-  .\[\&\>ol\]\:last\:mb-0 > ol:last-child {
+  .\[\&\>ol\]\:last\:mb-0>ol:last-child {
     margin-bottom: calc(var(--spacing) * 0);
   }
 
-  .\[\&\>ol\>li\]\:text-\[14px\] > ol > li {
+  .\[\&\>ol\>li\]\:text-\[14px\]>ol>li {
     font-size: 14px;
   }
 
-  .\[\&\>ol\>li\]\:text-\[15px\] > ol > li {
+  .\[\&\>ol\>li\]\:text-\[15px\]>ol>li {
     font-size: 15px;
   }
 
-  .\[\&\>ol\>li\]\:leading-\[1\.8\] > ol > li {
+  .\[\&\>ol\>li\]\:leading-\[1\.8\]>ol>li {
     --tw-leading: 1.8;
     line-height: 1.8;
   }
 
-  .\[\&\>ol\>li\]\:leading-\[1\.85\] > ol > li {
+  .\[\&\>ol\>li\]\:leading-\[1\.85\]>ol>li {
     --tw-leading: 1.85;
     line-height: 1.85;
   }
 
-  .\[\&\>ol\>li\]\:text-gray-800 > ol > li {
+  .\[\&\>ol\>li\]\:text-gray-800>ol>li {
     color: var(--color-gray-800);
   }
 
-  .\[\&\>p\]\:my-3\.5 > p {
+  .\[\&\>p\]\:my-3\.5>p {
     margin-block: calc(var(--spacing) * 3.5);
   }
 
-  .\[\&\>p\]\:my-4 > p {
+  .\[\&\>p\]\:my-4>p {
     margin-block: calc(var(--spacing) * 4);
   }
 
-  .\[\&\>p\]\:first\:mt-0 > p:first-child {
+  .\[\&\>p\]\:first\:mt-0>p:first-child {
     margin-top: calc(var(--spacing) * 0);
   }
 
-  .\[\&\>p\]\:last\:mb-0 > p:last-child {
+  .\[\&\>p\]\:last\:mb-0>p:last-child {
     margin-bottom: calc(var(--spacing) * 0);
   }
 
-  .\[\&\>strong\]\:font-semibold > strong {
+  .\[\&\>strong\]\:font-semibold>strong {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
   }
 
-  .\[\&\>strong\]\:text-gray-900 > strong {
+  .\[\&\>strong\]\:text-gray-900>strong {
     color: var(--color-gray-900);
   }
 
-  .\[\&\>ul\]\:my-3\.5 > ul {
+  .\[\&\>ul\]\:my-3\.5>ul {
     margin-block: calc(var(--spacing) * 3.5);
   }
 
-  .\[\&\>ul\]\:my-4 > ul {
+  .\[\&\>ul\]\:my-4>ul {
     margin-block: calc(var(--spacing) * 4);
   }
 
@@ -1770,38 +1808,48 @@
     margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
   }
 
-  .\[\&\>ul\]\:pl-5 > ul {
+  .\[\&\>ul\]\:pl-5>ul {
     padding-left: calc(var(--spacing) * 5);
   }
 
-  .\[\&\>ul\]\:first\:mt-0 > ul:first-child {
+  .\[\&\>ul\]\:first\:mt-0>ul:first-child {
     margin-top: calc(var(--spacing) * 0);
   }
 
-  .\[\&\>ul\]\:last\:mb-0 > ul:last-child {
+  .\[\&\>ul\]\:last\:mb-0>ul:last-child {
     margin-bottom: calc(var(--spacing) * 0);
   }
 
-  .\[\&\>ul\>li\]\:text-\[14px\] > ul > li {
+  .\[\&\>ul\>li\]\:text-\[14px\]>ul>li {
     font-size: 14px;
   }
 
-  .\[\&\>ul\>li\]\:text-\[15px\] > ul > li {
+  .\[\&\>ul\>li\]\:text-\[15px\]>ul>li {
     font-size: 15px;
   }
 
-  .\[\&\>ul\>li\]\:leading-\[1\.8\] > ul > li {
+  .\[\&\>ul\>li\]\:leading-\[1\.8\]>ul>li {
     --tw-leading: 1.8;
     line-height: 1.8;
   }
 
-  .\[\&\>ul\>li\]\:leading-\[1\.85\] > ul > li {
+  .\[\&\>ul\>li\]\:leading-\[1\.85\]>ul>li {
     --tw-leading: 1.85;
     line-height: 1.85;
   }
 
-  .\[\&\>ul\>li\]\:text-gray-800 > ul > li {
+  .\[\&\>ul\>li\]\:text-gray-800>ul>li {
     color: var(--color-gray-800);
+  }
+
+  .bg-blue-400-custom {
+    background-color: #60a5fa;
+    /* Tailwind blue-400 hex */
+  }
+
+  .bg-blue-400-custom:hover {
+    background-color: #3b82f6;
+    /* Tailwind blue-500 hex */
   }
 }
 
