@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { X, Loader2, BookmarkPlus, BookmarkCheck } from "lucide-react";
-import { projectId, publicAnonKey } from "../utils/supabase/info";
+import { BookmarkCheck, BookmarkPlus, Loader2, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../api";
 
 interface WordPopoverProps {

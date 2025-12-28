@@ -48,13 +48,13 @@ export function ChatArea({
 
   // Track when main assistant response completes (debounced content stability)
   const [isMainResponseComplete, setIsMainResponseComplete] = useState(false);
-  const contentStabilityTimer = useRef<NodeJS.Timeout | null>(null);
+  const contentStabilityTimer = useRef<number | null>(null);
 
   // Use strict scroll hook
   useStrictChatScroll(scrollContainerRef, messages);
 
   // Calculate user message count for spacer logic
-  const userMessageCount = messages.filter(m => m.role === 'user').length;
+  const userMessageCount = messages.filter((m) => m.role === "user").length;
 
   const lastMessage = messages[messages.length - 1];
 
@@ -67,14 +67,15 @@ export function ChatArea({
     }
 
     // Reset completion flag when loading starts or when new user message added
-    if (isLoading && lastMessage?.role === 'user') {
+    if (isLoading && lastMessage?.role === "user") {
       setIsMainResponseComplete(false);
       return;
     }
 
     // If we have an assistant message with content
-    if (lastMessage?.role === 'assistant' && lastMessage.content) {
+    if (lastMessage?.role === "assistant" && lastMessage.content) {
       // Set a short timer - if content doesn't change in 100ms, consider it complete
+
       contentStabilityTimer.current = setTimeout(() => {
         setIsMainResponseComplete(true);
       }, 100);
@@ -112,7 +113,7 @@ export function ChatArea({
         className="flex-1 overflow-y-auto p-6"
         ref={scrollContainerRef}
         style={{
-          paddingBottom: '2rem' // Small breathing room at bottom
+          paddingBottom: "2rem", // Small breathing room at bottom
         }}
       >
         {!currentThread ? (
@@ -138,10 +139,10 @@ export function ChatArea({
               <div
                 aria-hidden
                 style={{
-                  height: '70vh',
-                  minHeight: '70vh',
-                  width: '100%',
-                  flexShrink: 0
+                  height: "70vh",
+                  minHeight: "70vh",
+                  width: "100%",
+                  flexShrink: 0,
                 }}
               />
             )}

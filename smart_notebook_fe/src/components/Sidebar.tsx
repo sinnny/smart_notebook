@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Menu, Plus, MessageSquare, Trash2, BookmarkIcon, Star, BookOpen } from 'lucide-react';
-import { Thread, Bookmark } from '../App';
+import { BookmarkIcon, Menu, MessageSquare, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Bookmark, Thread } from "../App";
 
 interface SidebarProps {
   threads: Thread[];
@@ -24,11 +24,8 @@ export function Sidebar({
   onCreateThread,
   onDeleteThread,
   bookmarks,
-  onToggleBookmarkThread,
-  bookmarkedThreads = [],
 }: SidebarProps) {
-  const [showBookmarks, setShowBookmarks] = useState(false);
-  const [viewMode, setViewMode] = useState<'threads' | 'bookmarks'>('threads');
+  const [viewMode, setViewMode] = useState<"threads" | "bookmarks">("threads");
 
   if (!isOpen) {
     return (
@@ -66,55 +63,62 @@ export function Sidebar({
 
         <div className="flex gap-1 p-4 pb-2">
           <button
-            onClick={() => setViewMode('threads')}
-            className={`flex-1 px-3 py-1.5 text-xs rounded-lg transition-all ${viewMode === 'threads'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:bg-gray-50'
-              }`}
+            onClick={() => setViewMode("threads")}
+            className={`flex-1 px-3 py-1.5 text-xs rounded-lg transition-all ${
+              viewMode === "threads"
+                ? "bg-gray-900 text-white"
+                : "text-gray-600 hover:bg-gray-50"
+            }`}
           >
             Threads
           </button>
           <button
-            onClick={() => setViewMode('bookmarks')}
-            className={`flex-1 px-3 py-1.5 text-xs rounded-lg transition-all ${viewMode === 'bookmarks'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:bg-gray-50'
-              }`}
+            onClick={() => setViewMode("bookmarks")}
+            className={`flex-1 px-3 py-1.5 text-xs rounded-lg transition-all ${
+              viewMode === "bookmarks"
+                ? "bg-gray-900 text-white"
+                : "text-gray-600 hover:bg-gray-50"
+            }`}
           >
             Bookmarks ({bookmarks.length})
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {viewMode === 'threads' ? (
+          {viewMode === "threads" ? (
             <div className="px-3 py-2">
               <div className="space-y-1">
-                {threads.filter(t => t != null).map((thread) => (
-                  <div
-                    key={thread.id}
-                    className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 ${currentThread?.id === thread.id
-                        ? 'bg-gray-100'
-                        : 'hover:bg-gray-50'
+                {threads
+                  .filter((t) => t != null)
+                  .map((thread) => (
+                    <div
+                      key={thread.id}
+                      className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 ${
+                        currentThread?.id === thread.id
+                          ? "bg-gray-100"
+                          : "hover:bg-gray-50"
                       }`}
-                    onClick={() => onSelectThread(thread)}
-                  >
-                    <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                      <MessageSquare className="w-3.5 h-3.5 flex-shrink-0 text-gray-500" />
-                      <span className="text-sm truncate text-gray-700">{thread.title}</span>
+                      onClick={() => onSelectThread(thread)}
+                    >
+                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                        <MessageSquare className="w-3.5 h-3.5 flex-shrink-0 text-gray-500" />
+                        <span className="text-sm truncate text-gray-700">
+                          {thread.title}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteThread(thread.id);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-gray-200 rounded-lg transition-all"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-gray-600" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteThread(thread.id);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-gray-200 rounded-lg transition-all"
-                      >
-                        <Trash2 className="w-3.5 h-3.5 text-gray-600" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           ) : (
@@ -131,10 +135,14 @@ export function Sidebar({
                       key={bookmark.id}
                       className="p-3 bg-blue-50 border border-blue-100 rounded-xl"
                     >
-                      <div className="text-sm text-blue-700 mb-1">{bookmark.text}</div>
-                      <div className="text-xs text-gray-600">{bookmark.translation}</div>
+                      <div className="text-sm text-blue-700 mb-1">
+                        {bookmark.text}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {bookmark.translation}
+                      </div>
                       <div className="text-xs text-gray-400 mt-1.5">
-                        {bookmark.type === 'word' ? '📝 Word' : '📄 Sentence'}
+                        {bookmark.type === "word" ? "📝 Word" : "📄 Sentence"}
                       </div>
                     </div>
                   ))}
