@@ -102,7 +102,6 @@ export function ChatArea({
   // Disappears when main response completes, NOT when translation finishes
   const shouldShowSpacer =
     userMessageCount >= 2 &&
-    isLoading &&
     !isMainResponseComplete &&
     hasNaturalOverflow;
 
@@ -123,14 +122,13 @@ export function ChatArea({
         ) : (
           <div className="max-w-3xl mx-auto space-y-6">
             {messages.map((m) => (
-              <div key={m.id}>
-                <MessageBubble
-                  message={m}
-                  onAddBookmark={onAddBookmark}
-                  onRequestTranslation={onRequestTranslation}
-                  onJumpToTranslation={onJumpToTranslation}
-                />
-              </div>
+              <MessageBubble
+                key={m.id}
+                message={m}
+                onAddBookmark={onAddBookmark}
+                onRequestTranslation={onRequestTranslation}
+                onJumpToTranslation={onJumpToTranslation}
+              />
             ))}
 
             {/* Spacer ONLY during main response streaming */}

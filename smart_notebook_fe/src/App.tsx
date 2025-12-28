@@ -353,7 +353,12 @@ function App() {
       }
 
       loadThreads(); // Refresh thread list to update titles
-    } catch (error) {
+      loadThreads(); // Refresh thread list to update titles
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        console.log("Message generation stopped by user");
+        return;
+      }
       console.error("Error sending message:", error);
       alert("Failed to send message. Check console for details.");
     } finally {
