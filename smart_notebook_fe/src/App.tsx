@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Sidebar } from "./components/Sidebar";
-import { ChatArea } from "./components/ChatArea";
-import { TranslationPanel } from "./components/TranslationPanel";
 import { Menu } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { API_BASE_URL, getAuthHeaders } from "./api";
+import { ChatArea } from "./components/ChatArea";
+import { Sidebar } from "./components/Sidebar";
+import { TranslationPanel } from "./components/TranslationPanel";
 
 export interface Message {
   id: string;
@@ -43,7 +43,7 @@ function App() {
   const [highlightedMessageId, setHighlightedMessageId] = useState<
     string | null
   >(null);
-  const abortControllerRef = React.useRef<AbortController | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     loadThreads();

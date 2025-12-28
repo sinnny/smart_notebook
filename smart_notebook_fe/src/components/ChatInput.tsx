@@ -3,13 +3,17 @@ import { Send, Square, ChevronDown, Sparkles } from 'lucide-react';
 import { useAutoResizeTextArea, useOnClickOutside } from './ChatHooks';
 
 /** 🔑 ChatGPT-style baseline constants */
-const TEXT_PADDING = 6;   // textarea 내부 padding (상하좌우)
-const BUTTON_GAP = 8;     // 버튼과 텍스트 간 거리
-const MAX_HEIGHT = 168;   // ~5 lines
+const TEXT_PADDING = 6; // textarea 내부 padding (상하좌우)
+const BUTTON_GAP = 8; // 버튼과 텍스트 간 거리
+const MAX_HEIGHT = 168; // ~5 lines
 
 interface ChatInputProps {
     isLoading: boolean;
-    onSendMessage: (content: string, translateToEnglish: boolean, model: string) => void;
+    onSendMessage: (
+        content: string,
+        translateToEnglish: boolean,
+        model: string
+    ) => void;
     onStop: () => void;
     autoTranslateResponses: boolean;
     onToggleAutoTranslate: () => void;
@@ -31,7 +35,14 @@ export function ChatInput({
     const [showModelSelector, setShowModelSelector] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    const models = ["gpt-5.2", "gpt-5.", "gpt-5-mini", "gpt-5.2-pro", "gpt-5-nano", "gpt-4o-mini"];
+    const models = [
+        "gpt-5.2",
+        "gpt-5.",
+        "gpt-5-mini",
+        "gpt-5.2-pro",
+        "gpt-5-nano",
+        "gpt-4o-mini",
+    ];
 
     // Use extracted hook for auto-resize
     useAutoResizeTextArea(textareaRef, input, MAX_HEIGHT);
@@ -164,7 +175,9 @@ export function ChatInput({
                         <button
                             type="button"
                             onClick={onToggleTranslationPanel}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors text-xs ${showTranslationPanel ? "bg-blue-50 text-blue-600" : "bg-gray-50 hover:bg-gray-100"
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors text-xs ${showTranslationPanel
+                                    ? "bg-blue-50 text-blue-600"
+                                    : "bg-gray-50 hover:bg-gray-100"
                                 }`}
                         >
                             <Sparkles className="w-3.5 h-3.5" />
