@@ -3,20 +3,7 @@ import { Sidebar } from "./components/Sidebar";
 import { ChatArea } from "./components/ChatArea";
 import { TranslationPanel } from "./components/TranslationPanel";
 import { Menu } from "lucide-react";
-import { API_BASE_URL } from "./api";
-import { v7 as uuidv7 } from "uuid";
-
-const USER_UUID_LOCALSTORAGE_KEY = "smart_notebook_uuid";
-const getUserId = () => {
-  const existsUserUuid = localStorage.get(USER_UUID_LOCALSTORAGE_KEY);
-
-  if (!!existsUserUuid) return existsUserUuid;
-
-  const newUuid = uuidv7();
-  localStorage.setItem(USER_UUID_LOCALSTORAGE_KEY, newUuid);
-
-  return newUuid;
-};
+import { API_BASE_URL, getAuthHeaders } from "./api";
 
 export interface Message {
   id: string;
@@ -73,7 +60,7 @@ function App() {
   const loadThreads = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/threads`, {
-        headers: { "x-user-id": getUserId() },
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         const data = await response.json();
@@ -90,7 +77,7 @@ function App() {
   const loadBookmarkedThreads = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/bookmarked-threads`, {
-        headers: { "x-user-id": getUserId() },
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         const data = await response.json();
@@ -108,9 +95,7 @@ function App() {
     try {
       const response = await fetch(
         `${API_BASE_URL}/threads/${threadId}/messages`,
-        {
-          headers: { "x-user-id": getUserId() },
-        }
+        { headers: getAuthHeaders() }
       );
       if (response.ok) {
         const data = await response.json();
@@ -124,7 +109,7 @@ function App() {
   const loadBookmarks = async (threadId: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/bookmarks/${threadId}`, {
-        headers: { "x-user-id": getUserId() },
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         const data = await response.json();
@@ -148,10 +133,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/threads`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": getUserId(),
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           title: "새로운 대화 / New conversation",
         }),
@@ -180,10 +162,7 @@ function App() {
       try {
         const response = await fetch(`${API_BASE_URL}/threads`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-user-id": getUserId(),
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             title: content.slice(0, 50) + (content.length > 50 ? "..." : ""),
           }),
@@ -211,10 +190,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": getUserId(),
-        },
+        headers: getAuthHeaders(),
         signal: controller.signal,
         body: JSON.stringify({
           threadId: threadToUse?.id || "-99",
@@ -399,10 +375,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/translate`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": getUserId(),
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           threadId: currentThread.id,
           messageId,
@@ -439,10 +412,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/bookmarks`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": getUserId(),
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           threadId: currentThread.id,
           text,
@@ -464,7 +434,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/threads/${threadId}`, {
         method: "DELETE",
-        headers: { "x-user-id": getUserId() },
+        headers: getAuthHeaders(),
       });
 
       if (response.ok) {
@@ -488,10 +458,7 @@ function App() {
         `${API_BASE_URL}/bookmarked-threads/${isBookmarked ? "remove" : "add"}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-user-id": getUserId(),
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify({ threadId }),
         }
       );

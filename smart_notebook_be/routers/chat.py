@@ -1,25 +1,19 @@
 import json
-from fastapi import APIRouter, HTTPException, Header
+import asyncio
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
 from typing import AsyncGenerator
+from smart_notebook_be.schemas import (
+    ChatRequest,
+    TranslateRequest,
+    TranslateTextRequest,
+    MessageList,
+)
 from smart_notebook_be.db import supabase
 from smart_notebook_be.services.llm import llm_service
+from smart_notebook_be.deps import get_current_user_id
 
 router = APIRouter()
-
-
-class ChatRequest(BaseModel):
-    threadId: str
-    message: str
-    translateToEnglish: bool
-    autoTranslateResponses: bool
-    model: str = "gpt-4o-mini"
-
-
-class TranslateRequest(BaseModel):
-    threadId: str
-    messageId: str
 
 
 async def stream_generator(
@@ -28,7 +22,7 @@ async def stream_generator(
     translate_to_english: bool,
     auto_translate_responses: bool,
     model: str,
-    user_id: Optional[str],
+    user_id: str,
 ) -> AsyncGenerator[str, None]:
 
     # 0. Verify Thread Ownership (if thread_id exists and is not new/placeholder)
@@ -183,8 +177,18 @@ async def stream_generator(
 
         yield "data: [DONE]\n\n"
 
+    except asyncio.CancelledError:
+        print(f"Stream cancelled by user for thread {thread_id}")
+        return
     except Exception as e:
-        yield f"data: {json.dumps({'error': str(e)})}\n\n"
+        # Check for socket/connection errors specifically if possible,
+        # but here we just catch generic to prevent server spam if client disconnected.
+        err_str = str(e)
+        if "socket.send() raised exception" in err_str or "Broken pipe" in err_str:
+            print(f"Client disconnected during stream for thread {thread_id}")
+            return
+
+        yield f"data: {json.dumps({'error': err_str})}\n\n"
         print(f"Error in stream: {e}")
         import traceback
 
@@ -193,8 +197,25 @@ async def stream_generator(
 
 @router.post("/chat")
 async def chat_endpoint(
-    request: ChatRequest, x_user_id: Optional[str] = Header(None, alias="x-user-id")
+    request: ChatRequest, user_id: str = Depends(get_current_user_id)
 ):
+    # Verify ownership BEFORE streaming
+    try:
+        thread = (
+            supabase.table("threads")
+            .select("user_id")
+            .eq("id", request.threadId)
+            .execute()
+        )
+        if not thread.data:
+            raise HTTPException(status_code=404, detail="Thread not found")
+        if thread.data[0].get("user_id") != user_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=str(e))
+
     return StreamingResponse(
         stream_generator(
             request.threadId,
@@ -202,18 +223,16 @@ async def chat_endpoint(
             request.translateToEnglish,
             request.autoTranslateResponses,
             request.model,
-            x_user_id,
+            user_id,
         ),
         media_type="text/event-stream",
     )
 
 
-class TranslateTextRequest(BaseModel):
-    text: str
-
-
 @router.post("/translate-text")
-async def translate_text_endpoint(req: TranslateTextRequest):
+async def translate_text_endpoint(
+    req: TranslateTextRequest, user_id: str = Depends(get_current_user_id)
+):
     try:
         text = req.text
         is_word = len(text.split()) == 1
@@ -246,8 +265,10 @@ async def translate_text_endpoint(req: TranslateTextRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/translate")
-async def translate_endpoint(request: TranslateRequest):
+@router.post("/translate", response_model=MessageList)
+async def translate_endpoint(
+    request: TranslateRequest, user_id: str = Depends(get_current_user_id)
+):
     try:
         # Fetch message
         res = (
@@ -257,6 +278,19 @@ async def translate_endpoint(request: TranslateRequest):
             raise HTTPException(status_code=404, detail="Message not found")
 
         msg = res.data[0]
+
+        # Verify Thread ownership
+        thread = (
+            supabase.table("threads")
+            .select("user_id")
+            .eq("id", msg["thread_id"])
+            .execute()
+        )
+        if not thread.data:
+            raise HTTPException(status_code=404, detail="Thread not found")
+        if thread.data[0].get("user_id") != user_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+
         content = msg["content"]
 
         # Decide direction based on role
@@ -280,20 +314,7 @@ async def translate_endpoint(request: TranslateRequest):
             .order("created_at")
             .execute()
         )
-
-        formatted_msgs = []
-        for m in msgs_res.data:
-            formatted_msgs.append(
-                {
-                    "id": m["id"],
-                    "role": m["role"],
-                    "content": m["content"],
-                    "originalLanguage": m.get("original_language"),
-                    "translatedContent": m.get("translated_content"),
-                }
-            )
-
-        return {"messages": formatted_msgs}
+        return MessageList(messages=msgs_res.data)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
