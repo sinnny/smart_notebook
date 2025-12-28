@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Send, Square, ChevronDown, Sparkles } from 'lucide-react';
-import { useAutoResizeTextArea } from './ChatHooks';
+import { useAutoResizeTextArea, useOnClickOutside } from './ChatHooks';
 
 /** 🔑 ChatGPT-style baseline constants */
 const TEXT_PADDING = 6;   // textarea 내부 padding (상하좌우)
@@ -35,6 +35,10 @@ export function ChatInput({
 
     // Use extracted hook for auto-resize
     useAutoResizeTextArea(textareaRef, input, MAX_HEIGHT);
+
+    // Close model selector when clicking outside
+    const modelSelectorRef = useRef<HTMLDivElement>(null);
+    useOnClickOutside(modelSelectorRef, () => setShowModelSelector(false));
 
     const sendMessage = () => {
         if (!input.trim() || isLoading) return;
@@ -109,9 +113,9 @@ export function ChatInput({
                             className={`
                 w-9 h-9
                 rounded-xl flex items-center justify-center
-                text-white transition
+                text-white transition-all duration-200
                 ${isLoading
-                                    ? "bg-red-500 hover:bg-red-600"
+                                    ? "bg-blue-400-custom"
                                     : "bg-blue-600 hover:bg-blue-700 disabled:opacity-40"
                                 }
               `}
@@ -167,7 +171,7 @@ export function ChatInput({
                             Translation Panel
                         </button>
 
-                        <div className="relative">
+                        <div className="relative" ref={modelSelectorRef}>
                             <button
                                 type="button"
                                 onClick={() => setShowModelSelector((v) => !v)}

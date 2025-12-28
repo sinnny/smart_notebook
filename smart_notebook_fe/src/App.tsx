@@ -280,6 +280,9 @@ function App() {
 
             if (data === "[PHASE:TRANSLATING_RESPONSE]") {
               phase = "translating-response";
+              // Stop loading state as soon as we start translating the response
+              // This allows the UI to revert to "Send" button while translation happens
+              setIsLoading(false);
               continue;
             }
 
@@ -292,9 +295,9 @@ function App() {
                   prev.map((m) =>
                     m.id === userMessageId
                       ? {
-                          ...m,
-                          translatedContent: accumulatedUserTranslation,
-                        }
+                        ...m,
+                        translatedContent: accumulatedUserTranslation,
+                      }
                       : m
                   )
                 );
@@ -308,9 +311,9 @@ function App() {
                     return prev.map((m) =>
                       m.id === assistantMessageId
                         ? {
-                            ...m,
-                            content: accumulatedAssistantContent,
-                          }
+                          ...m,
+                          content: accumulatedAssistantContent,
+                        }
                         : m
                     );
                   } else {
@@ -335,9 +338,9 @@ function App() {
                   prev.map((m) =>
                     m.id === assistantMessageId
                       ? {
-                          ...m,
-                          translatedContent: accumulatedAssistantTranslation,
-                        }
+                        ...m,
+                        translatedContent: accumulatedAssistantTranslation,
+                      }
                       : m
                   )
                 );
