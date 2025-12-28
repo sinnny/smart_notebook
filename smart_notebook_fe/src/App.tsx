@@ -4,6 +4,7 @@ import { API_BASE_URL, getAuthHeaders } from "./api";
 import { ChatArea } from "./components/ChatArea";
 import { Sidebar } from "./components/Sidebar";
 import { TranslationPanel } from "./components/TranslationPanel";
+import { v7 as uuidv7 } from "uuid";
 
 export interface Message {
   id: string;
@@ -188,6 +189,8 @@ function App() {
     setIsLoading(true);
 
     try {
+      setMessages([...messages, { id: uuidv7(), content, role: "user" }]);
+
       const response = await fetch(`${API_BASE_URL}/chat`, {
         method: "POST",
         headers: getAuthHeaders(),
@@ -241,23 +244,16 @@ function App() {
             if (data.startsWith("[USER_MESSAGE:")) {
               const messageData = JSON.parse(data.slice(14, -1));
               userMessageId = messageData.id;
-              // Add user message with all data
-              setMessages((prev) => {
-                // Check if already exists
-                if (prev.some((m) => m.id === messageData.id)) {
-                  return prev;
-                }
-                return [
-                  ...prev,
-                  {
-                    id: messageData.id,
-                    role: "user" as const,
-                    content: messageData.content,
-                    originalLanguage: messageData.originalLanguage,
-                    translatedContent: messageData.translatedContent,
-                  },
-                ];
-              });
+
+              const resultMessage: Message = {
+                id: messageData.id,
+                role: "user",
+                content: messageData.content,
+                originalLanguage: messageData.originalLanguage,
+                translatedContent: messageData.translatedContent,
+              };
+
+              setMessages([...messages, resultMessage]);
               continue;
             }
 
@@ -294,10 +290,7 @@ function App() {
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === userMessageId
-                      ? {
-                        ...m,
-                        translatedContent: accumulatedUserTranslation,
-                      }
+                      ? { ...m, translatedContent: accumulatedUserTranslation }
                       : m
                   )
                 );
@@ -310,10 +303,7 @@ function App() {
                   if (existing) {
                     return prev.map((m) =>
                       m.id === assistantMessageId
-                        ? {
-                          ...m,
-                          content: accumulatedAssistantContent,
-                        }
+                        ? { ...m, content: accumulatedAssistantContent }
                         : m
                     );
                   } else {
@@ -326,7 +316,7 @@ function App() {
                       ...prev,
                       {
                         id: assistantMessageId,
-                        role: "assistant" as const,
+                        role: "assistant",
                         content: accumulatedAssistantContent,
                       },
                     ];
@@ -338,9 +328,9 @@ function App() {
                   prev.map((m) =>
                     m.id === assistantMessageId
                       ? {
-                        ...m,
-                        translatedContent: accumulatedAssistantTranslation,
-                      }
+                          ...m,
+                          translatedContent: accumulatedAssistantTranslation,
+                        }
                       : m
                   )
                 );
@@ -352,7 +342,6 @@ function App() {
         }
       }
 
-      loadThreads(); // Refresh thread list to update titles
       loadThreads(); // Refresh thread list to update titles
     } catch (error: any) {
       if (error.name === "AbortError") {
