@@ -5,12 +5,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm --prefix smart_notebook_fe ci && npm --prefix smart_notebook_fe run build && rm -rf public && mkdir -p public && cp -R smart_notebook_fe/dist/* public/",
-    "dev": "npm --prefix smart_notebook_fe run dev",
-    "dev:all": "npm --prefix smart_notebook_fe run dev:all"
+    "dev:fe": "cd ./smart_notebook_fe && npm run dev",
+    "dev:be": "source ./smart_notebook_be/.venv/bin/activate && uvicorn smart_notebook_be.main:app --reload",
+    "dev:all": "concurrently \"npm run dev:be\" \"npm run dev:fe\""
   },
   "repository": {
     "type": "git",
     "url": "git@github:sinnny/smart_notebook.git"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
   },
   "author": "",
   "license": "ISC",
