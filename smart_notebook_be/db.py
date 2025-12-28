@@ -139,13 +139,19 @@ def init_db():
         # Add user_id column if it doesn't exist (Migration-like step)
         try:
             cursor.execute("ALTER TABLE threads ADD COLUMN IF NOT EXISTS user_id TEXT")
-            cursor.execute("CREATE INDEX IF NOT EXISTS threads_user_id_idx ON threads(user_id)")
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS threads_user_id_idx ON threads(user_id)"
+            )
         except Exception as e:
             print(f"⚠️ Failed to add user_id to threads (might already exist): {e}")
 
         try:
-            cursor.execute("ALTER TABLE bookmarked_threads ADD COLUMN IF NOT EXISTS user_id TEXT")
-            cursor.execute("CREATE INDEX IF NOT EXISTS bookmarked_threads_user_id_idx ON bookmarked_threads(user_id)")
+            cursor.execute(
+                "ALTER TABLE bookmarked_threads ADD COLUMN IF NOT EXISTS user_id TEXT"
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS bookmarked_threads_user_id_idx ON bookmarked_threads(user_id)"
+            )
         except Exception as e:
             print(f"⚠️ Failed to add user_id to bookmarked_threads: {e}")
 
@@ -157,10 +163,6 @@ def init_db():
     finally:
         if conn:
             conn.close()
-
-
-# ⚠️ 중요: 모듈 로딩 시점에는 init_db()를 호출하지 않음
-# 대신 main.py의 startup 이벤트에서 호출하도록 변경
 
 
 class DBWrapper:
