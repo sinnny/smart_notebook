@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { Message, Thread } from "../App";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
@@ -42,6 +42,8 @@ export function ChatArea({
   onJumpToTranslation,
 }: ChatAreaProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const messagesContentRef = useRef<HTMLDivElement>(null);
+  const spacerRef = useRef<HTMLDivElement>(null);
 
   // Track if content naturally exceeds viewport (before spacer)
   const [hasNaturalOverflow, setHasNaturalOverflow] = useState(false);
@@ -72,13 +74,18 @@ export function ChatArea({
       return;
     }
 
-    // If we have an assistant message with content
-    if (lastMessage?.role === "assistant" && lastMessage.content) {
-      // Set a short timer - if content doesn't change in 100ms, consider it complete
+    // If we have an assistant message, ensure we mark as incomplete while streaming
+    if (lastMessage?.role === "assistant") {
+      // Always mark as incomplete during active streaming/updates
+      setIsMainResponseComplete(false);
 
-      contentStabilityTimer.current = setTimeout(() => {
-        setIsMainResponseComplete(true);
-      }, 100);
+      if (lastMessage.content) {
+        // Set a timer - if content doesn't change for 500ms, consider it complete
+        // Increased from 100ms to 500ms to prevent flickering on slow streams
+        contentStabilityTimer.current = setTimeout(() => {
+          setIsMainResponseComplete(true);
+        }, 500);
+      }
     }
 
     return () => {
@@ -88,12 +95,15 @@ export function ChatArea({
     };
   }, [lastMessage, isLoading]);
 
-  // Measure natural overflow after each message update
+  // Measure natural overflow using the isolated content ref
+  // This ensures we measure height WITHOUT the spacer, preventing flickering
   useEffect(() => {
     const container = scrollContainerRef.current;
-    if (container) {
-      // Check overflow BEFORE spacer is rendered
-      const overflow = container.scrollHeight > container.clientHeight;
+    const content = messagesContentRef.current;
+
+    if (container && content) {
+      // Check if the CONTENT (wrapper) is taller than the CONTAINER
+      const overflow = content.scrollHeight > container.clientHeight;
       setHasNaturalOverflow(overflow);
     }
   }, [messages]);
@@ -104,6 +114,39 @@ export function ChatArea({
     userMessageCount >= 2 &&
     !isMainResponseComplete &&
     hasNaturalOverflow;
+
+  // Dynamic spacer sizing
+  // As the assistant response grows, we reduce the spacer height
+  // This keeps the total scroll height stable and prevents "huge margin" issues
+  useLayoutEffect(() => {
+    if (shouldShowSpacer && spacerRef.current && scrollContainerRef.current && messagesContentRef.current) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg?.role === "assistant") {
+        // Find the assistant message element
+        const lastMsgEl = messagesContentRef.current.querySelector(
+          `[data-message-id="${lastMsg.id}"]`
+        );
+
+        if (lastMsgEl) {
+          const assistantHeight = lastMsgEl.getBoundingClientRect().height;
+          const viewportHeight = scrollContainerRef.current.clientHeight;
+
+          // Base spacer is 70% of viewport
+          const baseSpacerHeight = viewportHeight * 0.7;
+
+          // Reduce spacer as content grows
+          // Math.max(0) ensures it disappears completely when content is long enough
+          const newHeight = Math.max(0, baseSpacerHeight - assistantHeight);
+
+          spacerRef.current.style.height = `${newHeight}px`;
+        }
+      } else {
+        // If last message is not assistant (e.g. initial state before AI replies), reset to full
+        const viewportHeight = scrollContainerRef.current.clientHeight;
+        spacerRef.current.style.height = `${viewportHeight * 0.7}px`;
+      }
+    }
+  }, [messages, shouldShowSpacer]);
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -120,27 +163,31 @@ export function ChatArea({
             Start a new conversation
           </div>
         ) : (
-          <div className="max-w-3xl mx-auto space-y-6">
-            {messages.map((m) => (
-              <MessageBubble
-                key={m.id}
-                message={m}
-                onAddBookmark={onAddBookmark}
-                onRequestTranslation={onRequestTranslation}
-                onJumpToTranslation={onJumpToTranslation}
-              />
-            ))}
+          <div className="max-w-3xl mx-auto">
+            {/* Wrapper for messages to measure natural height */}
+            <div ref={messagesContentRef} className="space-y-6">
+              {messages.map((m) => (
+                <MessageBubble
+                  key={m.id}
+                  message={m}
+                  onAddBookmark={onAddBookmark}
+                  onRequestTranslation={onRequestTranslation}
+                  onJumpToTranslation={onJumpToTranslation}
+                />
+              ))}
+            </div>
 
-            {/* Spacer ONLY during main response streaming */}
-            {/* Decoupled from translation panel lifecycle */}
+            {/* Spacer: Dynamically sized via ref */}
             {shouldShowSpacer && (
               <div
+                ref={spacerRef}
                 aria-hidden
                 style={{
-                  height: "70vh",
-                  minHeight: "70vh",
                   width: "100%",
                   flexShrink: 0,
+                  // Initial height will be set by layout effect, but start with something to avoid jump
+                  height: "70vh",
+                  transition: "height 0.1s ease-out" // Add subtle transition for smoothness
                 }}
               />
             )}

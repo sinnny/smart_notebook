@@ -11,72 +11,79 @@ import { Message } from "../App";
  * 4. NEVER auto-scroll during assistant streaming.
  */
 export function useStrictChatScroll(
-  scrollContainerRef: RefObject<HTMLDivElement | null>,
-  messages: Message[]
+    scrollContainerRef: RefObject<HTMLDivElement | null>,
+    messages: Message[]
 ) {
-  const prevMessagesLengthRef = useRef<number>(messages.length);
+    const prevMessagesLengthRef = useRef<number>(messages.length);
 
-  useEffect(() => {
-    const prevLength = prevMessagesLengthRef.current;
-    const currentLength = messages.length;
+    useEffect(() => {
+        const prevLength = prevMessagesLengthRef.current;
+        const currentLength = messages.length;
 
-    // Only trigger if a NEW message was added
-    if (currentLength > prevLength) {
-      const lastMessage = messages[currentLength - 1];
-
-      // CRITICAL: Only scroll for USER messages, and only if it's not the very first one
-      if (lastMessage.role === "user" && currentLength > 1) {
-        const messageId = lastMessage.id;
-
-        // Use double requestAnimationFrame to ensure layout is fully finalized
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            const container = scrollContainerRef.current;
-            if (!container) return;
-
-            // Use container scoped query selector
-            const element = container.querySelector(
-              `[data-message-id="${messageId}"]`
-            ) as HTMLElement;
-
-            if (element) {
-              // Check if there's actual overflow to scroll
-              const hasOverflow =
-                container.scrollHeight > container.clientHeight;
-
-              // Only scroll if there's overflow (content exceeds viewport)
-              if (!hasOverflow) {
-                return; // Content fits in viewport, no need to scroll
-              }
-
-              // Use getBoundingClientRect for precise positioning
-              const containerRect = container.getBoundingClientRect();
-              const elementRect = element.getBoundingClientRect();
-
-              // Calculate how far the element is from the top of the container
-              const relativePosition = elementRect.top - containerRect.top;
-
-              // Current scroll position
-              const currentScroll = container.scrollTop;
-
-              // Target scroll position with comfortable top margin
-              const topMargin = 24; // px of breathing room at top
-              const targetScroll = currentScroll + relativePosition - topMargin;
-
-              // Scroll to position the element near the top with margin
-              container.scrollTo({
-                top: Math.max(0, targetScroll), // Don't scroll to negative
-                behavior: "smooth",
-              });
+        // Only trigger if a NEW message was added
+        if (currentLength > prevLength) {
+            // Find if a USER message was added in this update
+            // We scan the newly added messages to handle potential batching (e.g. User + Assistant added together)
+            let targetMessageId: string | null = null;
+            for (let i = prevLength; i < currentLength; i++) {
+                if (messages[i].role === "user") {
+                    targetMessageId = messages[i].id;
+                }
             }
-          });
-        });
-      }
-    }
 
-    // Update ref for next render
-    prevMessagesLengthRef.current = currentLength;
-  }, [messages, scrollContainerRef]);
+            // CRITICAL: Only scroll if we found a new USER message, and it's not the very first conversation turn
+            if (targetMessageId && currentLength > 1) {
+                const messageId = targetMessageId;
+
+                // Use double requestAnimationFrame to ensure layout is fully finalized
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const container = scrollContainerRef.current;
+                        if (!container) return;
+
+                        // Use container scoped query selector
+                        const element = container.querySelector(
+                            `[data-message-id="${messageId}"]`
+                        ) as HTMLElement;
+
+                        if (element) {
+                            // Check if there's actual overflow to scroll
+                            const hasOverflow =
+                                container.scrollHeight > container.clientHeight;
+
+                            // Only scroll if there's overflow (content exceeds viewport)
+                            if (!hasOverflow) {
+                                return; // Content fits in viewport, no need to scroll
+                            }
+
+                            // Use getBoundingClientRect for precise positioning
+                            const containerRect = container.getBoundingClientRect();
+                            const elementRect = element.getBoundingClientRect();
+
+                            // Calculate how far the element is from the top of the container
+                            const relativePosition = elementRect.top - containerRect.top;
+
+                            // Current scroll position
+                            const currentScroll = container.scrollTop;
+
+                            // Target scroll position with comfortable top margin
+                            const topMargin = 24; // px of breathing room at top
+                            const targetScroll = currentScroll + relativePosition - topMargin;
+
+                            // Scroll to position the element near the top with margin
+                            container.scrollTo({
+                                top: Math.max(0, targetScroll), // Don't scroll to negative
+                                behavior: "smooth",
+                            });
+                        }
+                    });
+                });
+            }
+        }
+
+        // Update ref for next render
+        prevMessagesLengthRef.current = currentLength;
+    }, [messages, scrollContainerRef]);
 }
 
 /**
@@ -84,20 +91,20 @@ export function useStrictChatScroll(
  * up to a specified maximum height.
  */
 export function useAutoResizeTextArea(
-  textareaRef: RefObject<HTMLTextAreaElement | null>,
-  value: string,
-  maxHeight: number
+    textareaRef: RefObject<HTMLTextAreaElement | null>,
+    value: string,
+    maxHeight: number
 ) {
-  useEffect(() => {
-    if (!textareaRef.current) return;
-    const el = textareaRef.current;
+    useEffect(() => {
+        if (!textareaRef.current) return;
+        const el = textareaRef.current;
 
-    // Reset height to auto to correctly calculate scrollHeight for shrinking
-    el.style.height = "auto";
+        // Reset height to auto to correctly calculate scrollHeight for shrinking
+        el.style.height = "auto";
 
-    // Set new height based on scrollHeight, capped at maxHeight
-    el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`;
-  }, [value, maxHeight]);
+        // Set new height based on scrollHeight, capped at maxHeight
+        el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`;
+    }, [value, maxHeight]);
 }
 
 /**
