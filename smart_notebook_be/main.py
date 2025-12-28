@@ -1,13 +1,15 @@
-from contextlib import asynccontextmanager
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+from contextlib import asynccontextmanager
+import logging
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from db import init_db
-import logging
-from routers import chat, threads, bookmarks
+
+from smart_notebook_be.db import init_db
+from smart_notebook_be.routers import chat, threads, bookmarks
 
 
 logging.basicConfig(level=logging.INFO)
@@ -33,6 +35,7 @@ async def lifespan(app: FastAPI):
     logger.info("👋 애플리케이션 종료")
 
 
+# Exported ASGI app (imported by smart_notebook_be/api/index.py for deployments)
 app = FastAPI(lifespan=lifespan)
 
 # CORS configuration

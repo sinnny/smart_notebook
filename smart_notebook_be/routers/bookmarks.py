@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from db import supabase
+
+from smart_notebook_be.db import supabase
 
 router = APIRouter()
 
