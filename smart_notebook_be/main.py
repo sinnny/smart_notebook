@@ -18,12 +18,8 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """앱 시작/종료 시 실행할 작업"""
-    # 시작 시
-    logger.info("🚀 애플리케이션 시작 중...")
     try:
         init_db()  # 여기서 DB 초기화
-        logger.info("✅ 데이터베이스 준비 완료")
     except Exception as e:
         logger.error(f"❌ 데이터베이스 초기화 실패: {e}")
         # 필요시 앱 시작을 중단할 수 있음

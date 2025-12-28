@@ -6,7 +6,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 _IDENTIFIER_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
-_ALLOWED_TABLES = {"threads", "messages", "bookmarked_threads", "bookmarks"}
+_ALLOWED_TABLES = {"threads", "messages", "bookmarked_threads", "bookmarks", "users"}
 
 
 def _get_postgres_connect_kwargs() -> Dict[str, Any]:
@@ -82,15 +82,47 @@ def init_db():
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # 1. Users Table
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id TEXT PRIMARY KEY,
+                user_type TEXT NOT NULL DEFAULT 'guest',
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                updated_at TIMESTAMPTZ DEFAULT NOW(),
+                deleted_at TIMESTAMPTZ,
+                last_active_at TIMESTAMPTZ DEFAULT NOW()
+            )
+            """
+        )
+
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS threads (
                 id TEXT PRIMARY KEY,
+                user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
                 title TEXT NOT NULL,
                 created_at TIMESTAMPTZ DEFAULT NOW(),
                 updated_at TIMESTAMPTZ DEFAULT NOW()
             )
             """
+        )
+        
+        # Add user_id column if it doesn't exist (for existing tables)
+        cursor.execute(
+            """
+            DO $$ 
+            BEGIN 
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='threads' AND column_name='user_id') THEN 
+                    ALTER TABLE threads ADD COLUMN user_id TEXT REFERENCES users(id) ON DELETE CASCADE; 
+                END IF; 
+            END $$;
+            """
+        )
+        
+        # Index on user_id
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS threads_user_id_idx ON threads(user_id)"
         )
 
         cursor.execute(
@@ -136,6 +168,25 @@ def init_db():
             "CREATE INDEX IF NOT EXISTS bookmarks_thread_created_at_idx ON bookmarks(thread_id, created_at)"
         )
 
+        # Add user_id column if it doesn't exist (Migration-like step)
+        try:
+            cursor.execute("ALTER TABLE threads ADD COLUMN IF NOT EXISTS user_id TEXT")
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS threads_user_id_idx ON threads(user_id)"
+            )
+        except Exception as e:
+            print(f"⚠️ Failed to add user_id to threads (might already exist): {e}")
+
+        try:
+            cursor.execute(
+                "ALTER TABLE bookmarked_threads ADD COLUMN IF NOT EXISTS user_id TEXT"
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS bookmarked_threads_user_id_idx ON bookmarked_threads(user_id)"
+            )
+        except Exception as e:
+            print(f"⚠️ Failed to add user_id to bookmarked_threads: {e}")
+
         conn.commit()
         print("✅ 데이터베이스 초기화 완료!")
     except Exception as e:
@@ -144,10 +195,6 @@ def init_db():
     finally:
         if conn:
             conn.close()
-
-
-# ⚠️ 중요: 모듈 로딩 시점에는 init_db()를 호출하지 않음
-# 대신 main.py의 startup 이벤트에서 호출하도록 변경
 
 
 class DBWrapper:
