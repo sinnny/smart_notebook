@@ -3,7 +3,7 @@ import { Sidebar } from "./components/Sidebar";
 import { ChatArea } from "./components/ChatArea";
 import { TranslationPanel } from "./components/TranslationPanel";
 import { Menu } from "lucide-react";
-import { API_BASE_URL } from "./api";
+import { API_BASE_URL, getAuthHeaders } from "./api";
 
 export interface Message {
   id: string;
@@ -59,7 +59,9 @@ function App() {
 
   const loadThreads = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/threads`, {});
+      const response = await fetch(`${API_BASE_URL}/threads`, {
+        headers: getAuthHeaders(),
+      });
       if (response.ok) {
         const data = await response.json();
         const validThreads = (data.threads || []).filter(
@@ -74,7 +76,9 @@ function App() {
 
   const loadBookmarkedThreads = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/bookmarked-threads`, {});
+      const response = await fetch(`${API_BASE_URL}/bookmarked-threads`, {
+        headers: getAuthHeaders(),
+      });
       if (response.ok) {
         const data = await response.json();
         const validThreads = (data.threads || []).filter(
@@ -91,7 +95,7 @@ function App() {
     try {
       const response = await fetch(
         `${API_BASE_URL}/threads/${threadId}/messages`,
-        {}
+        { headers: getAuthHeaders() }
       );
       if (response.ok) {
         const data = await response.json();
@@ -104,7 +108,9 @@ function App() {
 
   const loadBookmarks = async (threadId: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/bookmarks/${threadId}`, {});
+      const response = await fetch(`${API_BASE_URL}/bookmarks/${threadId}`, {
+        headers: getAuthHeaders(),
+      });
       if (response.ok) {
         const data = await response.json();
         setBookmarks(data.bookmarks || []);
@@ -127,9 +133,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/threads`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           title: "새로운 대화 / New conversation",
         }),
@@ -158,9 +162,7 @@ function App() {
       try {
         const response = await fetch(`${API_BASE_URL}/threads`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             title: content.slice(0, 50) + (content.length > 50 ? "..." : ""),
           }),
@@ -188,9 +190,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         signal: controller.signal,
         body: JSON.stringify({
           threadId: threadToUse?.id || "-99",
@@ -292,9 +292,9 @@ function App() {
                   prev.map((m) =>
                     m.id === userMessageId
                       ? {
-                          ...m,
-                          translatedContent: accumulatedUserTranslation,
-                        }
+                        ...m,
+                        translatedContent: accumulatedUserTranslation,
+                      }
                       : m
                   )
                 );
@@ -308,9 +308,9 @@ function App() {
                     return prev.map((m) =>
                       m.id === assistantMessageId
                         ? {
-                            ...m,
-                            content: accumulatedAssistantContent,
-                          }
+                          ...m,
+                          content: accumulatedAssistantContent,
+                        }
                         : m
                     );
                   } else {
@@ -335,9 +335,9 @@ function App() {
                   prev.map((m) =>
                     m.id === assistantMessageId
                       ? {
-                          ...m,
-                          translatedContent: accumulatedAssistantTranslation,
-                        }
+                        ...m,
+                        translatedContent: accumulatedAssistantTranslation,
+                      }
                       : m
                   )
                 );
@@ -375,9 +375,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/translate`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           threadId: currentThread.id,
           messageId,
@@ -414,9 +412,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/bookmarks`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           threadId: currentThread.id,
           text,
@@ -438,6 +434,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/threads/${threadId}`, {
         method: "DELETE",
+        headers: getAuthHeaders(),
       });
 
       if (response.ok) {
@@ -461,9 +458,7 @@ function App() {
         `${API_BASE_URL}/bookmarked-threads/${isBookmarked ? "remove" : "add"}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify({ threadId }),
         }
       );
