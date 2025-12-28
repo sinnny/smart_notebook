@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm --prefix smart_notebook_fe ci && npm --prefix smart_notebook_fe run build && rm -rf public && mkdir -p public && cp -R smart_notebook_fe/dist/* public/",
-    "dev": "npm --prefix smart_notebook_fe run dev"
+    "dev": "npm --prefix smart_notebook_fe run dev",
+    "dev:all": "npm --prefix smart_notebook_fe run dev:all"
   },
   "repository": {
     "type": "git",

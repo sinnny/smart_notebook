@@ -63,7 +63,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "backend": "cd ../smart_notebook_be && conda run -n sy --no-capture-output uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "backend": "cd .. && conda run -n sy --no-capture-output uvicorn smart_notebook_be.main:app --reload --host 0.0.0.0 --port 8000",
     "dev:all": "concurrently \"npm run dev\" \"npm run backend\""
   }
 }
