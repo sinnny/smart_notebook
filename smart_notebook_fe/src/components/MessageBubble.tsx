@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Message } from '../App';
 import { BookOpen, User, Bot, Sparkles } from 'lucide-react';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -61,7 +61,11 @@ export function MessageBubble({
   const hasTranslation = message.translatedContent;
 
   return (
-    <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
+    <div
+      className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}
+      data-message-id={message.id}
+      data-role={message.role}
+    >
       <div
         className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center ${isUser ? 'bg-gradient-to-br from-blue-600 to-blue-500' : 'bg-gradient-to-br from-gray-700 to-gray-600'
           }`}
