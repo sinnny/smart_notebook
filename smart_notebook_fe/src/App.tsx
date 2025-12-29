@@ -4,6 +4,7 @@ import { API_BASE_URL, getAuthHeaders } from "./api";
 import { ChatArea } from "./components/ChatArea";
 import { Sidebar } from "./components/Sidebar";
 import { TranslationPanel } from "./components/TranslationPanel";
+import { v7 as uuidv7 } from "uuid";
 
 export interface Message {
   id: string;
@@ -44,16 +45,26 @@ function App() {
     string | null
   >(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const newStartedThread = useRef<string | null>(null);
 
   useEffect(() => {
     loadThreads();
     loadBookmarkedThreads();
+
+    return () => {
+      newStartedThread.current = null;
+    };
   }, []);
 
   useEffect(() => {
     if (currentThread) {
-      loadMessages(currentThread.id);
-      loadBookmarks(currentThread.id);
+      if (currentThread.id !== newStartedThread.current) {
+        loadMessages(currentThread.id);
+        loadBookmarks(currentThread.id);
+      } else {
+        setMessages([]);
+        setBookmarks([]);
+      }
     }
   }, [currentThread]);
 
@@ -130,24 +141,18 @@ function App() {
 
   const createThread = async () => {
     stopMessageGeneration();
-    try {
-      const response = await fetch(`${API_BASE_URL}/threads`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          title: "새로운 대화 / New conversation",
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        const newThreads = [data.thread, ...threads].filter((t) => t != null);
-        setThreads(newThreads);
-        setCurrentThread(data.thread);
-        setMessages([]);
-      }
-    } catch (error) {
-      console.error("Error creating thread:", error);
-    }
+
+    const lastThreadId = uuidv7();
+    newStartedThread.current = lastThreadId;
+    const newThread = {
+      id: lastThreadId,
+      title: "새로운 대화 / New conversation",
+      createdAt: Date().toString(),
+      updatedAt: Date().toString(),
+    };
+
+    setThreads((prev) => [newThread, ...prev.filter((p) => p != null)]);
+    setCurrentThread(newThread);
   };
 
   const sendMessage = async (
@@ -157,8 +162,10 @@ function App() {
   ) => {
     let threadToUse = currentThread;
 
+    setMessages([...messages, { id: uuidv7(), content, role: "user" }]);
+
     // Create thread if none exists
-    if (!threadToUse) {
+    if (!threadToUse || threadToUse.id === newStartedThread.current) {
       try {
         const response = await fetch(`${API_BASE_URL}/threads`, {
           method: "POST",
@@ -170,8 +177,11 @@ function App() {
         if (response.ok) {
           const data = await response.json();
           threadToUse = data.thread;
-          setCurrentThread(threadToUse);
-          setThreads([data.thread, ...threads]);
+          if (!!threadToUse) {
+            setCurrentThread(threadToUse);
+            threads[0] = threadToUse;
+            setThreads([...threads]);
+          }
         } else {
           console.error("Failed to create thread");
           return;
@@ -241,23 +251,16 @@ function App() {
             if (data.startsWith("[USER_MESSAGE:")) {
               const messageData = JSON.parse(data.slice(14, -1));
               userMessageId = messageData.id;
-              // Add user message with all data
-              setMessages((prev) => {
-                // Check if already exists
-                if (prev.some((m) => m.id === messageData.id)) {
-                  return prev;
-                }
-                return [
-                  ...prev,
-                  {
-                    id: messageData.id,
-                    role: "user" as const,
-                    content: messageData.content,
-                    originalLanguage: messageData.originalLanguage,
-                    translatedContent: messageData.translatedContent,
-                  },
-                ];
-              });
+
+              const resultMessage: Message = {
+                id: messageData.id,
+                role: "user",
+                content: messageData.content,
+                originalLanguage: messageData.originalLanguage,
+                translatedContent: messageData.translatedContent,
+              };
+
+              setMessages([...messages, resultMessage]);
               continue;
             }
 
@@ -294,10 +297,7 @@ function App() {
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === userMessageId
-                      ? {
-                        ...m,
-                        translatedContent: accumulatedUserTranslation,
-                      }
+                      ? { ...m, translatedContent: accumulatedUserTranslation }
                       : m
                   )
                 );
@@ -310,10 +310,7 @@ function App() {
                   if (existing) {
                     return prev.map((m) =>
                       m.id === assistantMessageId
-                        ? {
-                          ...m,
-                          content: accumulatedAssistantContent,
-                        }
+                        ? { ...m, content: accumulatedAssistantContent }
                         : m
                     );
                   } else {
@@ -326,7 +323,7 @@ function App() {
                       ...prev,
                       {
                         id: assistantMessageId,
-                        role: "assistant" as const,
+                        role: "assistant",
                         content: accumulatedAssistantContent,
                       },
                     ];
@@ -338,9 +335,9 @@ function App() {
                   prev.map((m) =>
                     m.id === assistantMessageId
                       ? {
-                        ...m,
-                        translatedContent: accumulatedAssistantTranslation,
-                      }
+                          ...m,
+                          translatedContent: accumulatedAssistantTranslation,
+                        }
                       : m
                   )
                 );
@@ -352,7 +349,6 @@ function App() {
         }
       }
 
-      loadThreads(); // Refresh thread list to update titles
       loadThreads(); // Refresh thread list to update titles
     } catch (error: any) {
       if (error.name === "AbortError") {
@@ -439,6 +435,14 @@ function App() {
   };
 
   const deleteThread = async (threadId: string) => {
+    if (threadId === newStartedThread.current) {
+      setThreads((prev) => prev.filter((p) => p.id !== threadId));
+      setCurrentThread(null);
+      setMessages([]);
+      newStartedThread.current = null;
+      return;
+    }
+
     try {
       const response = await fetch(`${API_BASE_URL}/threads/${threadId}`, {
         method: "DELETE",
